@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Listening Gym — reps for the skill nobody teaches</title>
+<style>
+  :root{
+    --bg:#edf1ee;
+    --card:#fdfdfb;
+    --ink:#1e2b2a;
+    --soft:#6b7c78;
+    --line:#dce5df;
+    --teal:#0e7468;
+    --teal-deep:#0b5a51;
+    --teal-tint:#e5f1ee;
+    --amber:#b45309;
+    --amber-tint:#fdf2e3;
+    --green:#2f7d4f;
+    --green-tint:#e9f4ec;
+    --radius:14px;
+    --shadow:0 2px 8px rgba(20,50,45,.06), 0 14px 34px rgba(20,50,45,.07);
+    --serif:Georgia,'Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--sans);color:var(--ink);line-height:1.55;min-height:100vh;
+    background:
+      radial-gradient(900px 420px at 85% -10%, #f4f7f3 0%, transparent 60%),
+      radial-gradient(700px 400px at -10% 0%, #e3ede8 0%, transparent 55%),
+      var(--bg);
+  }
+  button{font-family:inherit;cursor:pointer}
+  textarea{font-family:inherit;color:var(--ink)}
+  .wrap{max-width:860px;margin:0 auto;padding:22px 18px 60px}
+  [hidden]{display:none !important}
+
+  header.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+  .logo{color:var(--teal);flex:0 0 auto}
+  .titleblock{flex:1 1 240px;min-width:200px}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(22px,3.4vw,29px);margin:0;letter-spacing:.3px}
+  .tagline{margin:2px 0 0;color:var(--soft);font-size:14px;font-style:italic;font-family:var(--serif)}
+  .tabs{display:flex;gap:6px;background:#dfe8e2;border:1px solid var(--line);border-radius:999px;padding:4px}
+  .tabs button{border:0;background:transparent;border-radius:999px;padding:8px 16px;font-size:14px;font-weight:700;color:var(--soft);transition:all .2s}
+  .tabs button[aria-selected="true"]{background:var(--card);color:var(--teal);box-shadow:0 1px 4px rgba(20,50,45,.18)}
+  button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
+  .kicker{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);font-weight:800;margin:0 0 6px}
+  h3{font-family:var(--serif);font-weight:600;font-size:17.5px;margin:0 0 10px}
+
+  /* --- rep strip --- */
+  .repstrip{display:flex;align-items:center;gap:10px;margin:0 0 14px;flex-wrap:wrap}
+  .repstrip .tag{font-size:12px;font-weight:700;color:var(--teal-deep);background:var(--teal-tint);border:1px solid #cfe3dd;border-radius:999px;padding:4px 12px}
+  .repstrip .quiet{font-size:12.5px;color:var(--soft)}
+
+  /* --- scene --- */
+  .scene-setup{color:var(--soft);font-size:14px;font-style:italic;margin:0 0 14px}
+  .speech{display:flex;gap:12px;align-items:flex-start}
+  .avatar{flex:0 0 42px;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#149483);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;font-family:var(--serif)}
+  .bubble{background:var(--teal-tint);border:1px solid #cfe3dd;border-left:3px solid var(--teal);border-radius:4px 12px 12px 12px;padding:13px 16px;flex:1}
+  .bubble .who{font-size:12px;font-weight:800;letter-spacing:.05em;color:var(--teal-deep);text-transform:uppercase;margin-bottom:4px}
+  .bubble .words{font-family:var(--serif);font-size:clamp(16.5px,2.4vw,19px);line-height:1.6;margin:0}
+
+  /* --- your turn --- */
+  .hintmoves{font-size:13px;color:var(--soft);margin:0 0 10px}
+  .hintmoves b{color:var(--teal-deep)}
+  textarea.reply{width:100%;min-height:130px;resize:vertical;border:1px solid var(--line);border-radius:12px;background:#fbfcfa;padding:13px 15px;font-size:15.5px;line-height:1.6}
+  textarea.reply:read-only{background:#f3f5f2;color:var(--soft)}
+  .cardfoot{display:flex;align-items:center;gap:10px;margin-top:13px;flex-wrap:wrap}
+  .spacer{flex:1}
+  .btn{border-radius:10px;padding:9px 18px;font-size:14px;font-weight:700;border:1px solid transparent;transition:all .18s}
+  .btn.primary{background:var(--teal);color:#f2faf8}
+  .btn.primary:hover{background:var(--teal-deep)}
+  .btn.ghost{background:transparent;border-color:var(--line);color:var(--soft)}
+  .btn.ghost:hover{color:var(--ink);border-color:#c4d0c9}
+  .btn:disabled{opacity:.4;cursor:default}
+
+  /* --- coach --- */
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 12px}
+  .chip{font-size:12.5px;font-weight:700;border-radius:999px;padding:5px 12px;border:1px solid}
+  .chip.good{background:var(--green-tint);color:var(--green);border-color:#cfe5d6}
+  .chip.warn{background:var(--amber-tint);color:var(--amber);border-color:#f0dcbd}
+  .notes{margin:0 0 12px;padding:0;list-style:none}
+  .notes li{font-size:13.5px;color:#6a5a44;background:var(--amber-tint);border-left:3px solid #e2c492;border-radius:0 8px 8px 0;padding:8px 12px;margin-bottom:6px}
+  .notes li b{color:var(--amber)}
+  details.reveal{border:1px dashed #c9d6cf;border-radius:12px;padding:12px 16px;background:#f8faf8;margin-bottom:12px}
+  details.reveal summary{cursor:pointer;font-weight:700;color:var(--teal);font-size:14px;list-style:none;user-select:none}
+  details.reveal summary::before{content:'▸ ';font-size:12px}
+  details.reveal[open] summary::before{content:'▾ '}
+  details.reveal .under{font-size:14px;margin:10px 0 4px}
+  details.reveal .under b{color:var(--teal-deep)}
+  details.reveal .model{font-family:var(--serif);font-size:16px;line-height:1.7;background:var(--teal-tint);border-left:3px solid var(--teal);border-radius:0 10px 10px 0;padding:11px 14px;margin:10px 0}
+  details.reveal .trap{font-size:13.5px;color:var(--soft);margin:8px 0 2px}
+  .rating{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .rating .q{font-size:13.5px;font-weight:700;color:var(--soft);margin-right:2px}
+  .rate{border-radius:999px;border:1.5px solid var(--line);background:#fff;padding:7px 15px;font-size:13.5px;font-weight:700;color:var(--soft);transition:all .15s}
+  .rate:hover{transform:translateY(-1px)}
+  .rate.r3.on{border-color:var(--green);background:var(--green-tint);color:var(--green)}
+  .rate.r2.on{border-color:#c9a13f;background:#fbf3dd;color:#96701a}
+  .rate.r1.on{border-color:#c46a5a;background:#fbe9e5;color:#a54b3a}
+
+  /* --- learn --- */
+  .move{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start}
+  .move .n{flex:0 0 30px;width:30px;height:30px;border-radius:50%;background:var(--teal);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .move p{margin:2px 0 0;font-size:14px;color:var(--soft)}
+  .move b{color:var(--ink);font-size:15px}
+  table.traps{width:100%;border-collapse:collapse;font-size:14px}
+  table.traps td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.traps td:first-child{font-weight:800;color:var(--amber);white-space:nowrap;width:1%}
+  table.traps tr:last-child td{border-bottom:0}
+  .learn-note{font-size:13px;color:var(--soft);background:#f4f7f4;border-radius:10px;padding:10px 14px;margin-top:12px}
+
+  /* --- progress --- */
+  .bignums{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+  .bignum{background:#f6f9f6;border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+  .bignum .v{font-family:var(--serif);font-size:30px;font-weight:700;color:var(--teal-deep);line-height:1.1}
+  .bignum .l{font-size:12px;color:var(--soft);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-top:3px}
+  .distbar{display:flex;height:14px;border-radius:99px;overflow:hidden;background:#eceeed;border:1px solid var(--line);margin:8px 0 6px}
+  .distbar i{display:block;height:100%}
+  .distbar .g{background:#5aa877}.distbar .y{background:#dcb34a}.distbar .r{background:#c97563}
+  .legend{font-size:12px;color:var(--soft);display:flex;gap:14px;flex-wrap:wrap}
+  .skillrow{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13.5px}
+  .skillrow .lab{flex:0 0 190px;color:var(--soft);font-weight:600}
+  .skillrow .bar{flex:1;height:8px;background:#e9edea;border-radius:99px;overflow:hidden}
+  .skillrow .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),#2ca08f);border-radius:99px;transition:width .6s}
+  .skillrow .pct{flex:0 0 44px;text-align:right;font-weight:800;color:var(--teal-deep);font-size:12.5px}
+  ul.recent{list-style:none;margin:8px 0 0;padding:0;font-size:13.5px}
+  ul.recent li{display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid #eef1ee;color:var(--soft)}
+  ul.recent li:last-child{border-bottom:0}
+  ul.recent li .scn{flex:1;color:var(--ink);font-weight:600}
+  ul.recent li .when{font-size:12px}
+  .gradbanner{background:linear-gradient(135deg,#e5f1ee,#f0f6ec);border:1px solid #cfe3dd;border-radius:12px;padding:14px 16px;font-size:14px;margin-bottom:16px}
+  .gradbanner b{color:var(--teal-deep)}
+
+  footer.foot{text-align:center;color:var(--soft);font-size:12.5px;margin-top:34px;line-height:1.7}
+  .credit{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:#93a29d}
+  .credit .brand{color:var(--ink);font-weight:800;letter-spacing:.1em}
+  .credit .brand sup{font-size:8.5px;letter-spacing:0}
+  #toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,80px);background:#22302e;color:#eef5f2;border-radius:12px;padding:11px 18px;font-size:13.5px;box-shadow:0 8px 30px rgba(0,0,0,.28);opacity:0;transition:all .3s;z-index:50;max-width:86vw;text-align:center}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media (max-width:560px){
+    .cardfoot .spacer{display:none}
+    .cardfoot .btn{flex:1}
+    .skillrow .lab{flex-basis:130px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <svg class="logo" viewBox="0 0 48 48" width="38" height="38" aria-hidden="true">
+      <circle cx="11" cy="24" r="4.4" fill="currentColor"/>
+      <path d="M19.5 15.5a12 12 0 010 17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M26.5 10a20 20 0 010 28" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" opacity=".7"/>
+      <path d="M33.5 5a28 28 0 010 38" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" opacity=".42"/>
+    </svg>
+    <div class="titleblock">
+      <h1>The Listening Gym</h1>
+      <p class="tagline">reps for the skill nobody ever taught you</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Views">
+      <button id="tab-gym" role="tab" aria-selected="true">Gym</button>
+      <button id="tab-learn" role="tab" aria-selected="false">Learn</button>
+      <button id="tab-progress" role="tab" aria-selected="false">Progress</button>
+    </div>
+  </header>
+
+  <!-- ================= GYM ================= -->
+  <main id="view-gym" role="tabpanel" aria-labelledby="tab-gym">
+    <div class="repstrip">
+      <span class="tag" id="rep-tag">Rep #1</span>
+      <span class="tag" id="scene-tag" style="background:#f4f7f4;color:var(--soft);border-color:var(--line)"></span>
+      <span class="spacer"></span>
+      <span class="quiet">respond out loud if you can &mdash; typing is fine too</span>
+    </div>
+
+    <section class="card" aria-label="The scene">
+      <p class="kicker" id="scene-kicker">The scene</p>
+      <p class="scene-setup" id="scene-setup"></p>
+      <div class="speech">
+        <div class="avatar" id="scene-avatar"></div>
+        <div class="bubble">
+          <div class="who" id="scene-who"></div>
+          <p class="words" id="scene-says"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="turn-card" aria-label="Your turn">
+      <p class="kicker">Your turn</p>
+      <p class="hintmoves">The three moves: <b>Reflect</b> what happened, in a few words &middot; <b>Name</b> one feeling &middot; <b>Invite</b> one more thing.</p>
+      <textarea id="reply" class="reply" placeholder="Say something back… one to three sentences is plenty."></textarea>
+      <div class="cardfoot">
+        <button class="btn primary" id="btn-send">Send reply</button>
+        <button class="btn ghost" id="btn-different" title="Skip this scene, no rep recorded">Different scene</button>
+        <span class="spacer"></span>
+        <span class="quiet" id="turn-meta" style="font-size:12.5px;color:var(--soft)"></span>
+      </div>
+    </section>
+
+    <section class="card" id="coach-card" hidden aria-label="Coach feedback" aria-live="polite">
+      <p class="kicker">Coach</p>
+      <div class="chips" id="coach-chips"></div>
+      <ul class="notes" id="coach-notes"></ul>
+      <details class="reveal" id="reveal-box">
+        <summary>See what&rsquo;s underneath &amp; a reply that lands</summary>
+        <p class="under"><b>Underneath:</b> <span id="rv-under"></span></p>
+        <div class="model" id="rv-model"></div>
+        <p class="trap"><b>Classic trap here:</b> <span id="rv-trap"></span></p>
+      </details>
+      <div class="rating" id="rating-row">
+        <span class="q">How did your reply land? (be honest &mdash; it&rsquo;s just you in here)</span>
+        <button class="rate r3" data-r="3">🟢 Landed</button>
+        <button class="rate r2" data-r="2">🟡 Okay</button>
+        <button class="rate r1" data-r="1">🔴 Rethink</button>
+      </div>
+      <div class="cardfoot" id="after-rate" hidden>
+        <button class="btn ghost" id="btn-same">↻ Same scene again</button>
+        <span class="spacer"></span>
+        <button class="btn primary" id="btn-next">Next scene →</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= LEARN ================= -->
+  <main id="view-learn" role="tabpanel" aria-labelledby="tab-learn" hidden>
+    <section class="card">
+      <p class="kicker">Why a gym?</p>
+      <h3>Everyone agrees listening matters. Almost nobody practices it.</h3>
+      <p style="font-size:14.5px;color:var(--soft);margin:0">We get years of training in arguing, presenting and selling &mdash; and zero reps in the one skill that decides whether people feel safe with us. Listening is not a personality; it&rsquo;s a movement pattern. Movement patterns are built with reps. So: reps.</p>
+    </section>
+
+    <section class="card">
+      <p class="kicker">The three moves</p>
+      <div class="move"><div class="n">1</div><div><b>Reflect</b> &mdash; play back the facts in fewer words than they used. <p>&ldquo;So the third time &mdash; and to the person you trained.&rdquo; Proof you were actually in there with them.</p></div></div>
+      <div class="move"><div class="n">2</div><div><b>Name</b> &mdash; offer one feeling word, gently, as a guess. <p>&ldquo;That sounds humiliating.&rdquo; Naming an emotion tends to lower its voltage &mdash; and if you guess wrong, they get to correct you, which is also being heard.</p></div></div>
+      <div class="move"><div class="n">3</div><div><b>Invite</b> &mdash; one open question, or simply &ldquo;tell me more.&rdquo; <p>&ldquo;What was the moment it hit hardest?&rdquo; One door opened. Not an interrogation &mdash; an invitation.</p></div></div>
+    </section>
+
+    <section class="card">
+      <p class="kicker">The five traps</p>
+      <table class="traps">
+        <tr><td>Fix-it mode</td><td>Advice before understanding. Advice only lands <em>after</em> someone feels heard &mdash; and half the time they never needed it.</td></tr>
+        <tr><td>Silver lining</td><td>&ldquo;At least&hellip;&rdquo; is an eraser rubbed across their feelings. Let the bad thing be bad, together, first.</td></tr>
+        <tr><td>Story hijack</td><td>&ldquo;I know exactly how you feel &mdash; when <em>I</em>&hellip;&rdquo; The spotlight drifted. Borrow your experience only to hand it straight back.</td></tr>
+        <tr><td>Interrogation</td><td>Three questions in a row feels like a cross-examination. One open question is a door; five is a warrant.</td></tr>
+        <tr><td>Fast reassurance</td><td>&ldquo;You&rsquo;ll be fine&rdquo; is often a polite &ldquo;please stop feeling.&rdquo; Curiosity first, comfort second.</td></tr>
+      </table>
+      <div class="learn-note"><b>The one-breath rule:</b> when they finish, take one full breath before you start. The silence is not a failure &mdash; it&rsquo;s the rep.</div>
+    </section>
+
+    <section class="card">
+      <p class="kicker">Taking it outside</p>
+      <p style="font-size:14.5px;color:var(--soft);margin:0 0 8px">One real rep beats ten simulated ones. Tonight, in an ordinary conversation: no advice, no &ldquo;at least,&rdquo; no your-turn story. Just reflect, name, invite. Notice how hard your hands itch to fix. That itch is the muscle being found.</p>
+      <div class="learn-note">This is a practice tool, not therapy. If someone is in crisis, encourage them to contact local emergency services or a crisis line in their country.</div>
+    </section>
+  </main>
+
+  <!-- ================= PROGRESS ================= -->
+  <main id="view-progress" role="tabpanel" aria-labelledby="tab-progress" hidden>
+    <div id="grad-slot"></div>
+    <div class="bignums">
+      <div class="bignum"><div class="v" id="st-reps">0</div><div class="l">Reps done</div></div>
+      <div class="bignum"><div class="v" id="st-scenes">0/12</div><div class="l">Scenes visited</div></div>
+      <div class="bignum"><div class="v" id="st-days">0</div><div class="l">Days trained</div></div>
+    </div>
+
+    <section class="card">
+      <p class="kicker">How your reps landed</p>
+      <div class="distbar" id="distbar"><i class="g" style="width:0%"></i><i class="y" style="width:0%"></i><i class="r" style="width:0%"></i></div>
+      <div class="legend"><span>🟢 landed <b id="lg-g">0</b></span><span>🟡 okay <b id="lg-y">0</b></span><span>🔴 rethink <b id="lg-r">0</b></span></div>
+      <div style="margin-top:14px">
+        <div class="skillrow"><span class="lab">Named a feeling</span><span class="bar"><i id="sk-named" style="width:0%"></i></span><span class="pct" id="sk-named-p">0%</span></div>
+        <div class="skillrow"><span class="lab">Invited more</span><span class="bar"><i id="sk-inv" style="width:0%"></i></span><span class="pct" id="sk-inv-p">0%</span></div>
+        <div class="skillrow"><span class="lab">Kept it spotlight-clean</span><span class="bar"><i id="sk-clean" style="width:0%"></i></span><span class="pct" id="sk-clean-p">0%</span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <p class="kicker">Your most common traps</p>
+      <div id="traplist" style="font-size:14px;color:var(--soft)"></div>
+    </section>
+
+    <section class="card">
+      <p class="kicker">Recent reps</p>
+      <ul class="recent" id="recent"></ul>
+    </section>
+
+    <section class="card" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <span style="font-size:13.5px;color:var(--soft)">Start from scratch? This clears all local stats.</span>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn ghost" id="btn-reset">Reset progress</button>
+    </section>
+  </main>
+
+  <footer class="foot">
+    The Listening Gym &mdash; a private practice space. Everything stays in your browser; nothing is uploaded, ever.<br>
+    Do two reps. Then go use them on someone you love.
+    <div class="credit">Created by <span class="brand">Rocaudio<sup>&trade;</sup></span> &nbsp;Tech Company Europe</div>
+  </footer>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============================ SCENES ============================ */
+  var SCENES = [
+    { id:'s1', name:'Maya', rel:'close friend \u00B7 work',
+      setup:'You meet for coffee. She has been oddly quiet all week. Then she puts her cup down:',
+      says:'I got passed over. Again. Third time \u2014 and they gave it to the guy I trained.',
+      under:'Not really about the title \u2014 about being invisible to people she has poured into. Humiliation wrapped in a joke about "the guy I trained."',
+      model:'Third time \u2014 and to the person you trained. That has to sting in a way "it\u2019s just a title" can\u2019t touch. \u2026 What was the moment it hit hardest?',
+      trap:'Instant career coaching ("update your r\u00E9sum\u00E9!") or a silver lining ("at least you\u2019re visible to leadership"). She doesn\u2019t need a plan yet \u2014 she needs a witness.' },
+    { id:'s2', name:'Jordan', rel:'partner \u00B7 home',
+      setup:'Evening, dishes half-done. Your partner leans on the counter and says, quietly:',
+      says:'I\u2019m not mad about the dishes. I\u2019m just\u2026 tired of being the one who has to remember everything.',
+      under:'The mental load \u2014 being the household\u2019s only memory. Overwhelm with a core of loneliness. "Not mad about the dishes" means: please don\u2019t argue the dishes.',
+      model:'It\u2019s not the dishes \u2014 it\u2019s carrying the whole list alone, every single day. That sounds exhausting\u2026 and a little lonely. Tell me what "remembering everything" looked like this week.',
+      trap:'Defending your record ("but I did them Tuesday!") or leaping to a chore chart. Solutions before understanding sound like escape plans.' },
+    { id:'s3', name:'Sam', rel:'teenager \u00B7 family',
+      setup:'You knock before entering. Your teenager doesn\u2019t look up from the floor, and says:',
+      says:'School is pointless. Nobody there actually gets me. I\u2019m just\u2026 waiting to be done.',
+      under:'Less about school, more about being unknown. "Waiting to be done" is worth sitting with \u2014 it can hide loneliness, pressure, or fear of the future.',
+      model:'Like you\u2019re serving time in a building where nobody really sees you. That\u2019s a heavy kind of tired. \u2026 What would "getting you" actually look like, if it existed?',
+      trap:'The lecture ("school matters"), the bright side ("you\u2019re having a great year!"), or the rapid-fire: who? what? when? why? One open door, not five locks.' },
+    { id:'s4', name:'Elena', rel:'colleague \u00B7 work',
+      setup:'A quiet moment after a meeting. She lowers her voice:',
+      says:'I said yes to the Henderson project. I don\u2019t know why I keep saying yes. I\u2019m drowning and I can\u2019t let anyone see it.',
+      under:'Two weights at once: the overload, and the shame of being seen struggling. "Can\u2019t let anyone see it" \u2014 she is letting you see it. That took something.',
+      model:'You\u2019re carrying more than you can hold \u2014 plus the fear of anyone noticing you\u2019re carrying it. That\u2019s a double weight. \u2026 What do you imagine would happen if someone saw?',
+      trap:'"Just say no next time" (advice) or "me too, I\u2019m so swamped" (hijack). Also watch for praising the confession so hard she regrets making it.' },
+    { id:'s5', name:'Ray', rel:'parent \u00B7 grief',
+      setup:'You visit on a Sunday. Halfway through the meal your dad says, staring at the empty chair:',
+      says:'Since your mom died, the house is too quiet. I turn the TV on just to hear a voice.',
+      under:'Grief living in the senses \u2014 quiet as an intruder. The TV detail is the real sentence: he is describing an absence shaped exactly like her.',
+      model:'The quiet is loud. Turning on the TV just for company\u2026 that tells me how much you miss hearing her. What were your evenings like, the two of you?',
+      trap:'Fixing the loneliness ("get a dog!", "come stay with us!") or "at least you have the grandkids." Let him talk about her \u2014 that\u2019s the invitation hiding inside the pain.' },
+    { id:'s6', name:'Theo', rel:'friend \u00B7 courage',
+      setup:'A walk that has gone quiet. He kicks at a stone, then, without looking at you:',
+      says:'I\u2019ve been thinking\u2026 I might need to quit drinking. Saying it out loud makes it weirdly real.',
+      under:'Fear, resolve, and vulnerability braided together. Telling you is a test of safety as much as a confession. "Weirdly real" \u2014 he is watching to see what happens to the words now that they exist.',
+      model:'That took something to say out loud \u2014 and now it\u2019s real, here, between us. How does it feel to have said it? \u2026 What made this the week?',
+      trap:'Cheers-leading ("good for you! you\u2019re not that bad") which shrinks it, or instantly becoming his rehab consultant. He needs the sentence honored, not solved.' },
+    { id:'s7', name:'Nia', rel:'sibling \u00B7 repair',
+      setup:'Your sister catches you at the end of a family dinner, halfway to the door:',
+      says:'I\u2019m not trying to guilt-trip you. But I\u2019ve noticed you haven\u2019t called in months. I miss my big sibling.',
+      under:'Hurt that preemptively defends itself ("not trying to guilt-trip") because she expects to be heard as an accusation. Underneath: longing, and the risk of admitting it.',
+      model:'You miss me \u2014 and it\u2019s been quietly hurting for months. Thank you for telling me straight instead of sitting on it. \u2026 What have you been wanting to tell me?',
+      trap:'Defending ("you know how work is"), counter-scoring ("well, YOU never call"), or "now I feel awful" \u2014 which turns her bid into your guilt show.' },
+    { id:'s8', name:'Amir', rel:'coworker \u00B7 trust',
+      setup:'In the break room, door half-closed. He speaks fast, quietly:',
+      says:'I got the test results Tuesday. I haven\u2019t told anyone here. I don\u2019t even know why I\u2019m telling you.',
+      under:'Fear he hasn\u2019t let himself feel, plus the vertigo of breaking his own silence. "I don\u2019t know why I\u2019m telling you" often means: you felt like the safest door.',
+      model:'You\u2019ve been carrying this alone since Tuesday. \u2026 I\u2019m glad you told me, and I\u2019m here. What do you need most right now \u2014 to talk about it, or very much not to?',
+      trap:'The medical quiz (what kind? what stage? what did the doctor say?) and your aunt\u2019s story. He chose you for a feeling, not a fact-finding mission.' },
+    { id:'s9', name:'Rosa', rel:'partner \u00B7 the big question',
+      setup:'In the car, eyes on the road, your partner asks in a too-casual voice:',
+      says:'Can I ask you something weird? Sometimes I wonder if you\u2019re even happy with me.',
+      under:'Insecurity that has been rehearsed before being said. "Something weird" is armor. They are asking for truth and tenderness at the same time \u2014 in that order.',
+      model:'Not weird at all \u2014 and I can tell that question didn\u2019t come out of nowhere. Tell me what\u2019s been making you wonder. I want the whole thing. (Then answer honestly.)',
+      trap:'Instant reassurance ("of course I\u2019m happy!") closes the door they just opened. Deflection ("why, are YOU unhappy?") turns a bid into a duel.' },
+    { id:'s10', name:'Kai', rel:'teenager \u00B7 alienation',
+      setup:'Your nephew is sulking after a party. He finally says:',
+      says:'Everyone there was just filming everything. Nobody was actually there. I left early and I don\u2019t even know why I\u2019m mad.',
+      under:'Alienation \u2014 a room full of people, zero presence. Also confusion about his own feelings, which is its own kind of lonely. "Don\u2019t know why I\u2019m mad" is an invitation to help him find out.',
+      model:'A whole room of people and nobody actually in it \u2014 that\u2019s a special kind of lonely. And the anger is a mystery even to you. \u2026 What did you want that night to feel like?',
+      trap:'The generational lecture ("kids and their phones") or the joke that skips past the feeling. He came to you confused, not wrong.' },
+    { id:'s11', name:'Grace', rel:'friend \u00B7 the armor of "fine"',
+      setup:'Two weeks after the layoff, you meet. She smiles too quickly:',
+      says:'I\u2019m fine, honestly. It\u2019s just a job. They handed me a box and I said thank you, and I\u2019ve been fine ever since.',
+      under:'"Fine" as full-body armor. The rehearsed delivery and the thank-you detail say the opposite of the words. She is checking whether you\u2019ll accept the armor or see behind it.',
+      model:'You\u2019ve said "fine" about three times in a minute. Sometimes fine is the truth \u2014 and sometimes it\u2019s what we say when the real words are too big. Either way, you don\u2019t have to perform for me. I\u2019m here.',
+      trap:'Accepting "fine" and changing the subject, "at least the severance was decent," or job-hunt advice. The rep here is staying \u2014 gently \u2014 where she isn\u2019t.' },
+    { id:'s12', name:'Nana', rel:'grandparent \u00B7 purpose',
+      setup:'Tea at her table. She gestures vaguely at the quiet house and says:',
+      says:'Everybody\u2019s grown, everybody\u2019s busy. Some days I don\u2019t know what I\u2019m for anymore.',
+      under:'Purpose without an audience. Not depression-talk necessarily \u2014 a plain, devastating question: what is a needed person when no one needs them the same way?',
+      model:'The house is full of echoes and the phone doesn\u2019t ring enough. "What am I for" \u2014 that\u2019s a big and aching question. \u2026 Tell me about the times in your life you felt most needed. I want those stories.',
+      trap:'Reassurance without curiosity ("of course you have a purpose \u2014 us!") which politely skips the question. The gift here is asking her to tell you who she has been.' }
+  ];
+
+  var STORAGE_KEY = 'listeningGym.v1';
+
+  /* ============================ STATE ============================ */
+  var memoryOnly = false;
+  var state = loadState() || defaultState();
+  var phase = 'read';        /* 'read' | 'rated' */
+  var pending = null;        /* current rep awaiting rating */
+
+  function defaultState(){
+    return { order:shuffle(range(SCENES.length)), pos:0, reps:0, history:[] };
+  }
+  function range(n){ var a=[]; for(var i=0;i<n;i++) a.push(i); return a; }
+  function shuffle(a){
+    a = a.slice();
+    for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+    return a;
+  }
+  function loadState(){
+    try{
+      var raw = window.localStorage.getItem(STORAGE_KEY);
+      if(!raw) return null;
+      var s = JSON.parse(raw);
+      return (s && typeof s === 'object' && s.order) ? s : null;
+    }catch(e){ memoryOnly = true; return null; }
+  }
+  function save(){
+    try{ window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch(e){ memoryOnly = true; }
+  }
+
+  /* ============================ HELPERS ============================ */
+  function $(id){ return document.getElementById(id); }
+  function esc(s){
+    return String(s==null?'':s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  var toastTimer=null;
+  function toast(msg){
+    var t=$('toast');
+    t.textContent=msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){ t.classList.remove('show'); },3200);
+  }
+  function words(s){ var t=String(s||'').trim(); return t? t.split(/\s+/).length : 0; }
+  function currentScene(){ return SCENES[state.order[state.pos]]; }
+
+  /* ============================ COACH ENGINE ============================ */
+  var FEEL_RE = /\b(sad|angr(y|ed|ily)?|mad|hurt(s|ing)?|humiliat\w*|embarrass\w*|ashamed|shame(d|ful)?|exhaust\w*|tired|drained|overwhelm\w*|lonel(y|iness)|alone|isolat\w*|scar(ed|y)?|afraid|fear(ful)?|frighten\w*|nervous|anxious|anxiety|worried|worry|disappoint\w*|invisible|unseen|unheard|ignored|overlook\w*|heavy|grief|griev\w*|mourn\w*|miss(ed|ing)?|ach(e|es|ing)|sting(s)?|stung|frustrat\w*|hopeless(ly)?|lost|stuck|crush\w*|devastat\w*|panic(ked|king)?|confus\w*|numb|empty|worthless|burn(ed)?[ -]?out|dread|regret(ful)?|jealous|envy|betray\w*|inadequate|underappreciated|unappreciated|small|unimportant|rejected|abandoned)\b/i;
+  var INVITE_RE = /\b(tell me more|say more|go on|help me understand|walk me through|what (was|is) (that|it)( like| for you)?|how (are|were|did|do|have|is) you|how('| i)?s that|what do you (need|want|think|feel)|i('| a)?m (here|listening)|what happened next|and then\?|can you tell me|what made you)\b/i;
+  var TRAPS = [
+    { k:'advice', re:/\b(you should|you (ought|need) to|why don'?t you|have you tried|if i were you|my advice|what you (should|need) (to )?do|just (tell|ask|quit|leave|do|apply|update|say|move|get)\b)/i,
+      label:'Fix-it mode', tip:'You reached for a solution before (or instead of) understanding. Advice only lands after someone feels heard.' },
+    { k:'silver', re:/\b(at least|look on the bright side|bright side|every cloud|silver lining|(it|things|this|you)('ll| will)? (be |get )?(ok|okay|fine|better)|happens for a reason|could be worse|not that bad|cheer up)\b/i,
+      label:'Silver lining', tip:'"At least\u2026" erases part of what they feel. Let the bad thing be bad, together, before any light enters.' },
+    { k:'hijack', re:/\b(that reminds me|i know (exactly )?how you feel|same (here|thing)|me too,? i\b|this one time i|let me tell you about|when i (was|went through)|i'?ve been there)/i,
+      label:'Story hijack', tip:'The spotlight drifted toward your experience. Borrow it only to hand it straight back: "\u2026I imagine that feels like X for you."' },
+    { k:'reassure', re:/\b(you'?ll be fine|don'?t (worry|be sad|cry|overthink)|calm down|you'?re (overreacting|being dramatic)|it'?s all in your head|no need to (feel|be) (sad|upset|worried))\b/i,
+      label:'Fast reassurance', tip:'Comfort before curiosity can feel like "please stop feeling." One open question first; warmth after.' },
+    { k:'why', re:/\bwhy (did|didn'?t|would|are|were|do|does|should) you\b/i,
+      label:'"Why" question', tip:'"Why did you\u2026" can land as cross-examination. Try "what made\u2026" or "how come\u2026" \u2014 same door, softer knock.' },
+    { k:'grill', re:null,
+      label:'Interrogation', tip:'Three or more questions at once feels like a deposition. One open question is an invitation; keep the rest for later.' }
+  ];
+  function analyze(text){
+    var greens = [], notes = [], trapKeys = [];
+    var t = String(text||'');
+    var wc = words(t);
+    var qs = (t.match(/\?/g)||[]).length;
+
+    var named = FEEL_RE.test(t);
+    var invited = INVITE_RE.test(t) || qs >= 1;
+
+    if(named) greens.push('Named a feeling');
+    if(invited) greens.push('Invited more');
+
+    TRAPS.forEach(function(tr){
+      var hit = false;
+      if(tr.k === 'grill'){ hit = qs >= 3; }
+      else { hit = tr.re.test(t); }
+      if(hit){
+        trapKeys.push(tr.k);
+        notes.push({label:tr.label, tip:tr.tip});
+      }
+    });
+
+    if(wc > 90) notes.push({label:'Marathon reply', tip:'Listening replies usually land in 1\u20133 sentences. Short proves you were with them, not performing for them.'});
+    if(wc > 0 && wc < 4) notes.push({label:'Thin reply', tip:'One or two words can feel like a shrug. Try one full sentence: reflect, name, invite.'});
+    if(!named && !trapKeys.length && wc >= 4) notes.push({label:'Feeling unnamed', tip:'You stayed clean, but nothing got named. Offer one feeling word as a guess \u2014 wrong guesses still help people feel found.'});
+
+    if(trapKeys.length === 0 && wc >= 4 && wc <= 90) greens.push('Spotlight stayed on them');
+    if(wc >= 6 && wc <= 60) greens.push('Listener-sized reply');
+
+    return { greens:greens, notes:notes, trapKeys:trapKeys, named:named, invited:invited, wc:wc };
+  }
+
+  /* ============================ RENDER: SCENE ============================ */
+  function renderScene(){
+    var sc = currentScene();
+    phase = 'read';
+    pending = null;
+    $('rep-tag').textContent = 'Rep #' + (state.reps + 1);
+    $('scene-tag').textContent = sc.rel;
+    $('scene-kicker').textContent = 'The scene';
+    $('scene-setup').textContent = sc.setup;
+    $('scene-avatar').textContent = sc.name.charAt(0);
+    $('scene-who').textContent = sc.name + ' \u2014 ' + sc.rel;
+    $('scene-says').textContent = '\u201C' + sc.says + '\u201D';
+    var ta = $('reply');
+    ta.readOnly = false;
+    ta.value = '';
+    ta.placeholder = 'Say something back\u2026 one to three sentences is plenty.';
+    $('btn-send').disabled = false;
+    $('btn-different').disabled = false;
+    $('turn-meta').textContent = '';
+    $('coach-card').hidden = true;
+    $('after-rate').hidden = true;
+    var rb = $('reveal-box'); if(rb) rb.open = false;
+    try{ ta.focus({preventScroll:true}); }catch(e){ ta.focus(); }
+  }
+
+  /* ============================ REP FLOW ============================ */
+  function sendReply(){
+    var text = $('reply').value;
+    if(words(text) < 1){ toast('Say something first \u2014 even one clumsy sentence counts as a rep.'); return; }
+    var res = analyze(text);
+    var sc = currentScene();
+
+    /* freeze the textarea */
+    var ta = $('reply');
+    ta.readOnly = true;
+    $('btn-send').disabled = true;
+    $('btn-different').disabled = true;
+    $('turn-meta').textContent = res.wc + ' words';
+
+    /* chips */
+    var chipsHtml = '';
+    if(res.greens.length === 0) chipsHtml += '<span class="chip warn">Rough rep \u2014 that\u2019s what reps are for</span>';
+    res.greens.forEach(function(g){ chipsHtml += '<span class="chip good">\u2713 ' + esc(g) + '</span>'; });
+    $('coach-chips').innerHTML = chipsHtml;
+
+    /* notes */
+    var notesHtml = '';
+    res.notes.forEach(function(n){
+      notesHtml += '<li><b>' + esc(n.label) + '.</b> ' + esc(n.tip) + '</li>';
+    });
+    $('coach-notes').innerHTML = notesHtml;
+
+    /* reveal */
+    $('rv-under').textContent = sc.under;
+    $('rv-model').textContent = '\u201C' + sc.model + '\u201D';
+    $('rv-trap').textContent = sc.trap;
+
+    /* rating buttons reset */
+    var rates = document.querySelectorAll('.rate');
+    for(var i=0;i<rates.length;i++) rates[i].classList.remove('on');
+
+    $('coach-card').hidden = false;
+    $('after-rate').hidden = true;
+
+    pending = { sid:sc.id, r:0, named:res.named, invited:res.invited, traps:res.trapKeys, ts:Date.now() };
+    state.reps += 1; /* counted when rated; provisional bump for display */
+
+    $('coach-card').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function rate(r){
+    if(!pending) return;
+    pending.r = r;
+    state.history.unshift({
+      sid:pending.sid, r:pending.r, named:pending.named,
+      invited:pending.invited, traps:pending.traps, ts:pending.ts
+    });
+    if(state.history.length > 200) state.history.length = 200;
+    save();
+    var rates = document.querySelectorAll('.rate');
+    for(var i=0;i<rates.length;i++){
+      rates[i].classList.toggle('on', parseInt(rates[i].getAttribute('data-r'),10) === r);
+    }
+    $('after-rate').hidden = false;
+    pending = null;
+    if(state.reps === 12) toast('A full round of 12 \u2014 nice. The real gym is tonight\u2019s dinner table.');
+    renderProgress();
+  }
+
+  function advance(){
+    state.pos += 1;
+    if(state.pos >= state.order.length){
+      state.order = shuffle(range(SCENES.length));
+      state.pos = 0;
+      toast('Second round \u2014 listening is forever.');
+    }
+    save();
+    renderScene();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function sameScene(){
+    save();
+    renderScene();
+    toast('Same scene, fresh rep. Try the move you missed.');
+  }
+
+  function differentScene(){
+    if(pending){ pending = null; } /* skipped, nothing recorded */
+    advance();
+  }
+
+  /* ============================ PROGRESS ============================ */
+  var TRAP_LABELS = { advice:'Fix-it mode', silver:'Silver lining', hijack:'Story hijack', reassure:'Fast reassurance', why:'"Why" questions', grill:'Interrogation' };
+  function renderProgress(){
+    var h = state.history;
+    $('st-reps').textContent = h.length;
+
+    var visited = {};
+    h.forEach(function(e){ visited[e.sid] = true; });
+    var vc = 0; for(var k in visited) if(visited.hasOwnProperty(k)) vc++;
+    $('st-scenes').textContent = vc + '/' + SCENES.length;
+
+    var days = {};
+    h.forEach(function(e){ var d = new Date(e.ts); days[d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()] = true; });
+    var dc = 0; for(var d2 in days) if(days.hasOwnProperty(d2)) dc++;
+    $('st-days').textContent = dc;
+
+    var g=0,y=0,r=0,namedN=0,invN=0,cleanN=0;
+    var trapCount = {};
+    h.forEach(function(e){
+      if(e.r===3) g++; else if(e.r===2) y++; else if(e.r===1) r++;
+      if(e.named) namedN++;
+      if(e.invited) invN++;
+      if(!e.traps || e.traps.length===0) cleanN++;
+      (e.traps||[]).forEach(function(t){ trapCount[t]=(trapCount[t]||0)+1; });
+    });
+    var n = h.length || 1;
+    function seg(el, v){ el.style.width = (h.length ? Math.round(v/h.length*100) : 0) + '%'; }
+    var bar = $('distbar').children;
+    seg(bar[0],g); seg(bar[1],y); seg(bar[2],r);
+    $('lg-g').textContent=g; $('lg-y').textContent=y; $('lg-r').textContent=r;
+
+    function skill(barId, pctId, v){
+      var p = h.length ? Math.round(v/h.length*100) : 0;
+      $(barId).style.width = p + '%';
+      $(pctId).textContent = p + '%';
+    }
+    skill('sk-named','sk-named-p',namedN);
+    skill('sk-inv','sk-inv-p',invN);
+    skill('sk-clean','sk-clean-p',cleanN);
+
+    /* traps */
+    var tl = [];
+    for(var tk in trapCount) if(trapCount.hasOwnProperty(tk)) tl.push({k:tk,c:trapCount[tk]});
+    tl.sort(function(a,b){ return b.c-a.c; });
+    var tlHtml = '';
+    if(tl.length === 0){
+      tlHtml = h.length ? 'None so far \u2014 suspiciously clean. Keep going.' : 'No reps yet. Your traps will show up here (everyone has one).';
+    } else {
+      tl.slice(0,4).forEach(function(t){
+        tlHtml += '<div class="skillrow"><span class="lab">' + esc(TRAP_LABELS[t.k]||t.k) + '</span>' +
+                  '<span class="bar"><i style="width:' + Math.min(100, Math.round(t.c/n*100*2)) + '%;background:linear-gradient(90deg,#c98a2e,#e0b25e)"></i></span>' +
+                  '<span class="pct" style="color:var(--amber)">\u00D7' + t.c + '</span></div>';
+      });
+    }
+    $('traplist').innerHTML = tlHtml;
+
+    /* recent */
+    var recHtml = '';
+    if(h.length === 0){
+      recHtml = '<li style="border:0;color:var(--soft);font-style:italic">No reps yet \u2014 the barbell is right over there, in the Gym tab.</li>';
+    } else {
+      var emoj = {3:'\uD83D\uDFE2',2:'\uD83D\uDFE1',1:'\uD83D\uDD34'};
+      h.slice(0,10).forEach(function(e){
+        var sc = null;
+        for(var i=0;i<SCENES.length;i++) if(SCENES[i].id===e.sid) sc=SCENES[i];
+        var when = new Date(e.ts);
+        var wtxt = (when.getMonth()+1) + '/' + when.getDate();
+        recHtml += '<li>' + (emoj[e.r]||'\u26AA') + ' <span class="scn">' + esc(sc? sc.name + ' \u2014 ' + sc.rel : 'scene') + '</span><span class="when">' + wtxt + '</span></li>';
+      });
+    }
+    $('recent').innerHTML = recHtml;
+
+    /* graduation banner */
+    var grad = $('grad-slot');
+    if(h.length >= 12){
+      grad.innerHTML = '<div class="gradbanner"><b>Full round complete.</b> Simulation has a ceiling \u2014 real listening doesn\u2019t. Tonight, pick one ordinary conversation and run the three moves live: reflect, name, invite. No advice until they ask.</div>';
+    } else if(h.length > 0){
+      grad.innerHTML = '';
+    } else {
+      grad.innerHTML = '';
+    }
+  }
+
+  /* reset with two-step confirm (window.confirm can be blocked in embedded previews) */
+  var resetArmed = false, resetTimer = null;
+  $('btn-reset').addEventListener('click', function(){
+    if(!resetArmed){
+      resetArmed = true;
+      $('btn-reset').textContent = 'Click again to erase everything';
+      $('btn-reset').style.color = '#a54b3a';
+      $('btn-reset').style.borderColor = '#dcb0a6';
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(function(){
+        resetArmed = false;
+        $('btn-reset').textContent = 'Reset progress';
+        $('btn-reset').style.color = '';
+        $('btn-reset').style.borderColor = '';
+      }, 4000);
+      return;
+    }
+    clearTimeout(resetTimer);
+    resetArmed = false;
+    $('btn-reset').textContent = 'Reset progress';
+    $('btn-reset').style.color = '';
+    $('btn-reset').style.borderColor = '';
+    state = defaultState();
+    save();
+    pending = null;
+    renderProgress();
+    renderScene();
+    toast('Fresh start. The gym remembers nothing \u2014 your people will remember everything.');
+  });
+
+  /* ============================ TABS ============================ */
+  var currentView = 'gym';
+  function showView(v){
+    if(currentView === v) return;
+    currentView = v;
+    $('view-gym').hidden = v !== 'gym';
+    $('view-learn').hidden = v !== 'learn';
+    $('view-progress').hidden = v !== 'progress';
+    $('tab-gym').setAttribute('aria-selected', v === 'gym');
+    $('tab-learn').setAttribute('aria-selected', v === 'learn');
+    $('tab-progress').setAttribute('aria-selected', v === 'progress');
+    if(v === 'progress') renderProgress();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  /* ============================ EVENTS ============================ */
+  $('btn-send').addEventListener('click', sendReply);
+  $('btn-different').addEventListener('click', differentScene);
+  $('btn-next').addEventListener('click', advance);
+  $('btn-same').addEventListener('click', sameScene);
+  var rateBtns = document.querySelectorAll('.rate');
+  for(var i=0;i<rateBtns.length;i++){
+    (function(btn){
+      btn.addEventListener('click', function(){ rate(parseInt(btn.getAttribute('data-r'),10)); });
+    })(rateBtns[i]);
+  }
+  $('tab-gym').addEventListener('click', function(){ showView('gym'); });
+  $('tab-learn').addEventListener('click', function(){ showView('learn'); });
+  $('tab-progress').addEventListener('click', function(){ showView('progress'); });
+  $('reply').addEventListener('keydown', function(e){
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); if(!$('btn-send').disabled) sendReply(); }
+  });
+
+  /* ============================ INIT ============================ */
+  if(memoryOnly){
+    $('turn-meta').textContent = 'stats kept in memory only here \u2014 open in a browser to save them';
+  }
+  renderScene();
+  renderProgress();
+})();
+</script>
+</body>
+</html>

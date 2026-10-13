@@ -1,0 +1,52 @@
+MIT License
+
+Copyright (c) 2026 Rocaudio Tech Company Europe
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----------------------------------------------------------------------------
+
+TRADEMARK NOTICE
+
+This license does NOT grant permission to use the trade name, trademarks,
+service marks, or product names of the licensor, including without limitation
+"Rocaudio" and the Rocaudio(TM) mark, except as required for reasonable and
+customary use in describing the origin of the Software. Derivative works and
+redistributions that modify the Software must remove or replace the Rocaudio
+branding.
+
+-----------------------------------------------------------------------------
+
+THIRD-PARTY INSTRUMENTS
+
+The following screening instruments included in mindbaseline.html are used in
+their published, unmodified form under their own free/public-domain terms, and
+remain subject to those terms (not to the MIT grant above):
+
+  - PHQ-9:  Kroenke, Spitzer & Williams (2001). Public domain.
+  - GAD-7:  Spitzer, Kroenke, Williams & Lowe (2006). Public domain.
+  - WHO-5:  (c) World Health Organization. Free to use and reproduce.
+  - Mini-IPIP items: Donnellan, Oswald, Baird & Lucas (2006); public domain
+    via the International Personality Item Pool (ipip.ori.org).
+
+MEDICAL DISCLAIMER
+
+This software is a screening and educational tool. It is not a medical device,
+does not provide a diagnosis, and is not a substitute for professional
+evaluation or care.

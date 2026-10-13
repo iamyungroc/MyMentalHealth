@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Letters That Stay — a quiet legacy-letter studio</title>
+<style>
+  :root{
+    --paper:#f6f1e6;
+    --card:#fffdf8;
+    --ink:#35312a;
+    --soft:#8b8271;
+    --line:#e7dfcd;
+    --accent:#9c5530;
+    --accent-soft:#f1e3d7;
+    --green:#5c7355;
+    --radius:14px;
+    --shadow:0 2px 10px rgba(60,45,20,.07), 0 12px 32px rgba(60,45,20,.06);
+    --serif:Georgia,'Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--sans);
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 500px at 15% -5%, #fbf7ec 0%, transparent 60%),
+      radial-gradient(1000px 600px at 100% 0%, #f4ecdd 0%, transparent 55%),
+      var(--paper);
+    min-height:100vh;
+    line-height:1.55;
+  }
+  button{font-family:inherit;cursor:pointer}
+  input,select,textarea{font-family:inherit;color:var(--ink)}
+  .wrap{max-width:880px;margin:0 auto;padding:22px 18px 60px}
+
+  /* ---------- header ---------- */
+  header.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+  .logo{color:var(--accent);flex:0 0 auto}
+  .titleblock{flex:1 1 260px;min-width:220px}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(22px,3.4vw,30px);letter-spacing:.4px;margin:0}
+  .tagline{margin:2px 0 0;color:var(--soft);font-size:14px;font-style:italic;font-family:var(--serif)}
+  .tabs{display:flex;gap:8px;background:#efe8d8;border:1px solid var(--line);border-radius:999px;padding:4px}
+  .tabs button{border:0;background:transparent;border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600;color:var(--soft);transition:all .2s}
+  .tabs button[aria-selected="true"]{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(60,45,20,.15)}
+  .tabs button:focus-visible,.card button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ---------- cards ---------- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
+  .intro p{margin:.4em 0}
+  .intro .kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 6px}
+  .intro h2{font-family:var(--serif);font-weight:600;font-size:20px;margin:0 0 6px}
+  .intro .quiet{color:var(--soft);font-size:13.5px}
+  .pillrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .pill{font-size:12px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:4px 12px;font-weight:600}
+  .dismiss{float:right;border:0;background:transparent;color:var(--soft);font-size:18px;line-height:1;padding:2px 6px;border-radius:8px}
+  .dismiss:hover{background:#f1ead9;color:var(--ink)}
+
+  /* ---------- setup ---------- */
+  .setup h3, .promptcard h3{font-family:var(--serif);font-weight:600;font-size:17px;margin:0 0 12px}
+  .setupgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .field label{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin-bottom:5px}
+  .field input,.field select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:#fffef9;font-size:14.5px}
+  .field input::placeholder{color:#c2b8a2}
+  details.setupfold summary{cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;list-style:none;user-select:none}
+  details.setupfold summary::before{content:'▸ ';font-size:11px}
+  details.setupfold[open] summary::before{content:'▾ '}
+
+  /* ---------- progress ---------- */
+  .progress{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+  .dots{display:flex;gap:6px;flex-wrap:wrap}
+  .dot{width:13px;height:13px;border-radius:50%;border:2px solid #d8cdb4;background:transparent;padding:0;transition:all .25s}
+  .dot.done{background:var(--green);border-color:var(--green)}
+  .dot.current{border-color:var(--accent);transform:scale(1.25)}
+  .dot:hover{border-color:var(--accent)}
+  .progresstext{font-size:12.5px;color:var(--soft);white-space:nowrap}
+  .bar{flex:1;height:4px;background:#ece4d2;border-radius:99px;overflow:hidden;min-width:40px}
+  .bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--green),#7d9a74);border-radius:99px;transition:width .5s ease}
+
+  /* ---------- prompt card ---------- */
+  .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 4px}
+  .blurb{font-family:var(--serif);font-style:italic;color:var(--soft);font-size:14.5px;margin:0 0 14px}
+  .promptrow{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+  .prompt{font-family:var(--serif);font-size:clamp(17px,2.4vw,20px);line-height:1.5;margin:0;flex:1;transition:opacity .25s, transform .25s}
+  .prompt.swap{opacity:0;transform:translateY(4px)}
+  .reshuffle{border:1px solid var(--line);background:#fffef9;border-radius:10px;padding:7px 10px;font-size:12.5px;font-weight:600;color:var(--soft);white-space:nowrap;transition:all .2s}
+  .reshuffle:hover{color:var(--accent);border-color:#d9c7b4}
+  textarea.answer{
+    width:100%;margin-top:14px;min-height:230px;resize:vertical;
+    border:1px solid var(--line);border-radius:12px;background:#fffef9;
+    padding:14px 16px;font-family:var(--serif);font-size:16.5px;line-height:1.75;
+  }
+  textarea.answer::placeholder{color:#c6bca6;font-style:italic}
+  .cardfoot{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+  .meta{font-size:12.5px;color:var(--soft)}
+  .meta b{color:var(--green);font-weight:700}
+  .spacer{flex:1}
+  .btn{border-radius:10px;padding:9px 18px;font-size:14px;font-weight:700;border:1px solid transparent;transition:all .2s}
+  .btn.primary{background:var(--accent);color:#fdf8ef}
+  .btn.primary:hover{background:#844525}
+  .btn.ghost{background:transparent;border-color:var(--line);color:var(--soft)}
+  .btn.ghost:hover{color:var(--ink);border-color:#cfc3a8}
+  .btn:disabled{opacity:.4;cursor:default}
+
+  /* ---------- letter ---------- */
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .sheet{
+    background:#fffdf6;border:1px solid #eadfc6;border-radius:6px;
+    box-shadow:0 3px 14px rgba(60,45,20,.10), 0 18px 44px rgba(60,45,20,.08);
+    padding:clamp(28px,6vw,64px);
+    font-family:var(--serif);
+    max-width:720px;margin:0 auto;
+  }
+  .sheet .dateline{text-align:right;color:var(--soft);font-size:14px;font-style:italic;margin-bottom:28px}
+  .sheet .greet{font-size:19px;margin:0 0 22px}
+  .sheet p{font-size:16.5px;line-height:1.8;margin:0 0 1.15em;text-align:left}
+  .sheet .signoff{margin-top:30px;font-size:16.5px;line-height:1.9}
+  .sheet .ps{margin-top:24px;font-style:italic;color:#6d6353;font-size:15.5px}
+  .emptyletter{text-align:center;color:var(--soft);padding:48px 20px;font-family:var(--serif);font-style:italic;font-size:17px}
+  .foundnote{max-width:720px;margin:18px auto 0;background:#f2ede0;border:1px dashed #d5c9ab;border-radius:12px;padding:14px 18px;font-size:13.5px;color:#6d6353}
+  .foundnote b{color:var(--accent)}
+
+  footer.foot{text-align:center;color:var(--soft);font-size:12.5px;margin-top:34px;line-height:1.7}
+  .credit{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:#a99e86}
+  .credit .brand{color:var(--ink);font-weight:800;letter-spacing:.1em}
+  .credit .brand sup{font-size:8.5px;letter-spacing:0}
+
+  /* ---------- toast ---------- */
+  #toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,80px);background:#332e26;color:#f5efdf;border-radius:12px;padding:11px 18px;font-size:13.5px;box-shadow:0 8px 30px rgba(0,0,0,.25);opacity:0;transition:all .3s ease;z-index:50;max-width:86vw;text-align:center}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+
+  [hidden]{display:none !important}
+
+  @media (max-width:560px){
+    .cardfoot .spacer{display:none}
+    .cardfoot .btn{flex:1}
+  }
+  @media print{
+    body{background:#fff}
+    .no-print{display:none !important}
+    .wrap{padding:0;max-width:none}
+    .sheet{box-shadow:none;border:0;padding:0;max-width:none}
+    #view-letter{display:block !important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top no-print">
+    <svg class="logo" viewBox="0 0 48 48" width="38" height="38" aria-hidden="true">
+      <rect x="6" y="17" width="36" height="23" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/>
+      <path d="M6.5 20 L24 32 L41.5 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M24 15 V6.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+      <path d="M24 10 C19.5 10 17.2 7.8 16.2 4.2 C20.8 3.6 23.4 5.9 24 10 Z" fill="currentColor" opacity=".95"/>
+      <path d="M24 10 C28.5 10 30.8 7.8 31.8 4.2 C27.2 3.6 24.6 5.9 24 10 Z" fill="currentColor" opacity=".55"/>
+    </svg>
+    <div class="titleblock">
+      <h1>Letters That Stay</h1>
+      <p class="tagline">a quiet studio for the letter they&rsquo;ll keep forever</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Views">
+      <button id="tab-write" role="tab" aria-selected="true">Compose</button>
+      <button id="tab-letter" role="tab" aria-selected="false">Your letter</button>
+    </div>
+  </header>
+
+  <!-- ============ INTRO ============ -->
+  <section id="intro" class="card intro no-print" aria-label="About this app">
+    <button class="dismiss" id="intro-close" title="Hide this" aria-label="Hide introduction">&times;</button>
+    <p class="kicker">The one nobody writes</p>
+    <h2>An ethical will is a letter of everything money can&rsquo;t buy.</h2>
+    <p>For over a thousand years, families have passed down letters like this one &mdash; bequeathing <em>values, blessings, hard-won lessons, apologies, hopes</em>, even the recipe. Not an estate. A self.</p>
+    <p class="quiet">Almost nobody ever writes one. This is a private studio for yours: eight gentle prompts, written at your pace. No account, no cloud, no streaks, no scores. What you write never leaves your device.</p>
+    <div class="pillrow">
+      <span class="pill">100% private &mdash; stays in your browser</span>
+      <span class="pill">~30 minutes, or a lifetime</span>
+      <span class="pill">Skip anything, forever</span>
+    </div>
+  </section>
+
+  <!-- ============ COMPOSE VIEW ============ -->
+  <main id="view-write" role="tabpanel" aria-labelledby="tab-write">
+
+    <section class="card setup no-print">
+      <details class="setupfold" id="setup-fold">
+        <summary id="setup-summary">Set up your letter</summary>
+        <div style="padding-top:14px">
+          <div class="setupgrid">
+            <div class="field">
+              <label for="in-recipient">This letter is for&hellip;</label>
+              <input id="in-recipient" type="text" placeholder="e.g. Maya, my daughter" maxlength="60" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="in-relation">They are&hellip;</label>
+              <select id="in-relation">
+                <option>my child</option>
+                <option>my grandchild</option>
+                <option>my partner</option>
+                <option>a dear friend</option>
+                <option>my sibling</option>
+                <option>my parent</option>
+                <option>my future self</option>
+                <option>someone I haven&rsquo;t met yet</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="in-writer">Signed&hellip;</label>
+              <input id="in-writer" type="text" placeholder="your name, or 'Dad', 'Amma', 'Nana'&hellip;" maxlength="60" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="in-signoff">Sign-off</label>
+              <select id="in-signoff">
+                <option>With all my love</option>
+                <option>Love, always</option>
+                <option>Forever yours</option>
+                <option>All my love, always</option>
+                <option>Yours</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="in-date">Dated</label>
+              <input id="in-date" type="date">
+            </div>
+            <div class="field">
+              <label for="in-ps">A P.S. (optional)</label>
+              <input id="in-ps" type="text" placeholder="one last small thing&hellip;" maxlength="200" autocomplete="off">
+            </div>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <div class="progress no-print" aria-hidden="false">
+      <div class="dots" id="dots" role="group" aria-label="Letter sections"></div>
+      <div class="bar"><i id="barfill"></i></div>
+      <span class="progresstext" id="progresstext" aria-live="polite">0 of 8 written</span>
+    </div>
+
+    <section class="card promptcard" aria-label="Current writing prompt">
+      <p class="eyebrow" id="eyebrow"></p>
+      <h3 id="sec-title"></h3>
+      <p class="blurb" id="sec-blurb"></p>
+      <div class="promptrow">
+        <p class="prompt" id="prompt-text"></p>
+        <button class="reshuffle" id="btn-shuffle" title="Show a different prompt for this part">↻ Another prompt</button>
+      </div>
+      <label for="ta" class="meta" style="display:block;margin-top:10px">Your words &mdash; write badly, write honestly, edit later:</label>
+      <textarea id="ta" class="answer" placeholder="Nobody is grading this. Start anywhere — even with “I don’t know what to say, but…”"></textarea>
+      <div class="cardfoot">
+        <span class="meta" id="wordcount">0 words</span>
+        <span class="meta" id="saveind" aria-live="polite"></span>
+        <span class="spacer"></span>
+        <button class="btn ghost" id="btn-prev">← Back</button>
+        <button class="btn ghost" id="btn-skip" title="Leave this part empty and move on">Skip</button>
+        <button class="btn primary" id="btn-next">Next →</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ LETTER VIEW ============ -->
+  <main id="view-letter" role="tabpanel" aria-labelledby="tab-letter" hidden>
+    <div class="actions no-print">
+      <button class="btn ghost" id="btn-listen">🔊 Read it to me</button>
+      <button class="btn ghost" id="btn-copy">⧉ Copy</button>
+      <button class="btn ghost" id="btn-dl-txt">⬇ Save .txt</button>
+      <button class="btn ghost" id="btn-dl-html">⬇ Keepsake .html</button>
+      <button class="btn ghost" id="btn-print">🖨 Print</button>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn primary" id="btn-edit">✎ Keep writing</button>
+    </div>
+    <div id="letter-holder"></div>
+    <div class="foundnote no-print" id="foundnote" hidden>
+      <b>A letter only becomes a legacy if it is found.</b> Tell someone you trust where you keep this file &mdash; and when they should read it. That conversation is part of the gift.
+    </div>
+  </main>
+
+  <footer class="foot no-print">
+    Made quietly, to be given away one day.<br>
+    Everything you write stays in your browser. Use <em>Copy</em> or <em>Save</em> to keep a copy somewhere safe.
+    <div class="credit">Created by <span class="brand">Rocaudio<sup>&trade;</sup></span> &nbsp;Tech Company Europe</div>
+  </footer>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============================ DATA ============================ */
+  var SECTIONS = [
+    { id:'roots', title:'Where you come from',
+      blurb:'The world you grew up in — they will never see it, so describe it.',
+      prompts:[
+        'What do you want them to know about the world you grew up in — the sounds, the street, the kitchen?',
+        'Describe one ordinary day from your childhood that somehow stayed with you.',
+        'What did your parents or grandparents do that you swore you\u2019d never repeat — and what did you repeat anyway?',
+        'What did you believe at twenty that you no longer believe? What replaced it?'
+      ]},
+    { id:'lessons', title:'Lessons learned the hard way',
+      blurb:'Life\u2019s expensive tuitions — so they can attend for free.',
+      prompts:[
+        'What mistake taught you the most? Tell it plainly, without making yourself the hero.',
+        'What advice would you give your younger self — and why wouldn\u2019t younger you have listened?',
+        'When did failure hurt the most, and what did it quietly turn into later?',
+        'What took you much too long to learn?'
+      ]},
+    { id:'values', title:'What you stood for',
+      blurb:'Values only feel real when they come with a story attached.',
+      prompts:[
+        'Choose three words you\u2019d like to be remembered by. Tell the story behind each one.',
+        'What did you refuse to compromise on, even when it cost you?',
+        'What did you change your mind about — and what changed it?',
+        'What do you think most people get wrong about living a good life?'
+      ]},
+    { id:'story', title:'A story only you can tell',
+      blurb:'One story, told exactly the way you\u2019d tell it at the table.',
+      prompts:[
+        'Tell the story of the day you knew you had survived something.',
+        'Tell them about a stranger who changed your life and then disappeared from it.',
+        'What is the funniest thing that ever happened to you? Tell it exactly how you would over dinner.',
+        'Tell the story of the moment your life turned — the one nobody saw coming.'
+      ]},
+    { id:'hopes', title:'Hopes & blessings',
+      blurb:'Not a résumé for them — a blessing for them.',
+      prompts:[
+        'What do you hope for them that has nothing to do with achievement?',
+        'What should they never apologize for?',
+        'Write the blessing you wish someone had given you at their age.',
+        'What do you hope they find — and what do you hope they let go of?'
+      ]},
+    { id:'small', title:'The small things',
+      blurb:'These are what will be missed the most. Save them here before they fade.',
+      prompts:[
+        'Your signature recipe, written from memory — measurements be damned.',
+        'The song that sounds like your life. Which part of it is you?',
+        'Family sayings, inside jokes, silly traditions — write them down before they vanish.',
+        'What does a perfect day look like for you? Describe it hour by hour.'
+      ]},
+    { id:'unsaid', title:'What went unsaid',
+      blurb:'Optional. Only if it helps you — and no one has to read this one aloud.',
+      prompts:[
+        'Is there an apology you owe, or one you still need?',
+        'What did you never quite know how to say out loud?',
+        'What should they forgive themselves for?',
+        'What did love cost you — and was it worth it?'
+      ]},
+    { id:'closing', title:'Closing words',
+      blurb:'How you want to leave the page.',
+      prompts:[
+        'What should they do when they miss you?',
+        'If the letter ends here, what is the one sentence it should end with?',
+        'What do you want them to know about how you feel about them right now, while you\u2019re still here to write it?',
+        'Say goodbye the way only you would say it.'
+      ]}
+  ];
+  var STORAGE_KEY = 'lettersThatStay.v1';
+
+  /* ============================ STATE ============================ */
+  var memoryOnly = false;
+  var state = loadState() || defaultState();
+
+  function defaultState(){
+    return {
+      recipient:'', relation:'my child', writer:'', signoff:'With all my love',
+      date: todayISO(), ps:'', introDone:false, current:0,
+      answers:{} /* id -> {p:promptIndex, t:text} */
+    };
+  }
+  function todayISO(){
+    var d = new Date();
+    var m = ('0'+(d.getMonth()+1)).slice(-2);
+    var day = ('0'+d.getDate()).slice(-2);
+    return d.getFullYear()+'-'+m+'-'+day;
+  }
+  function loadState(){
+    try{
+      var raw = window.localStorage.getItem(STORAGE_KEY);
+      if(!raw) return null;
+      var s = JSON.parse(raw);
+      return (s && typeof s === 'object') ? s : null;
+    }catch(e){ memoryOnly = true; return null; }
+  }
+  var saveTimer = null;
+  function scheduleSave(){
+    clearTimeout(saveTimer);
+    setSaveInd('writing\u2026');
+    saveTimer = setTimeout(saveNow, 600);
+  }
+  function saveNow(){
+    try{
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      setSaveInd('<b>saved</b> \u2713 in this browser');
+    }catch(e){
+      memoryOnly = true;
+      setSaveInd('kept in memory \u2014 use Copy / Save to keep it');
+    }
+  }
+
+  /* ============================ DOM HELPERS ============================ */
+  function $(id){ return document.getElementById(id); }
+  function esc(s){
+    return String(s==null?'':s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  var toastTimer = null;
+  function toast(msg){
+    var t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 3400);
+  }
+  function setSaveInd(html){ $('saveind').innerHTML = html; }
+  function wordCount(s){
+    var t = String(s||'').trim();
+    return t ? t.split(/\s+/).length : 0;
+  }
+  function ans(id){
+    if(!state.answers[id]) state.answers[id] = {p:0, t:''};
+    return state.answers[id];
+  }
+  function writtenCount(){
+    var n = 0;
+    for(var i=0;i<SECTIONS.length;i++){
+      var a = state.answers[SECTIONS[i].id];
+      if(a && a.t && a.t.trim()) n++;
+    }
+    return n;
+  }
+
+  /* ============================ RENDER: SETUP ============================ */
+  function bindSetup(){
+    var map = [
+      ['in-recipient','recipient','text'],
+      ['in-relation','relation','sel'],
+      ['in-writer','writer','text'],
+      ['in-signoff','signoff','sel'],
+      ['in-date','date','text'],
+      ['in-ps','ps','text']
+    ];
+    map.forEach(function(m){
+      var el = $(m[0]);
+      el.value = state[m[1]] || '';
+      el.addEventListener('input', function(){
+        state[m[1]] = el.value;
+        scheduleSave();
+      });
+      el.addEventListener('change', function(){
+        state[m[1]] = el.value;
+        scheduleSave();
+        updateSetupSummary();
+      });
+    });
+    updateSetupSummary();
+    if(state.recipient || state.writer || state.ps){
+      $('setup-fold').open = false; /* already filled: stay tidy */
+    } else {
+      $('setup-fold').open = true;
+    }
+  }
+  function updateSetupSummary(){
+    var bits = [];
+    if(state.recipient) bits.push('for ' + state.recipient);
+    if(state.writer) bits.push('from ' + state.writer);
+    $('setup-summary').textContent = bits.length
+      ? 'Your letter \u2014 ' + bits.join(', ') + '  (edit)'
+      : 'Set up your letter';
+  }
+
+  /* ============================ RENDER: PROGRESS ============================ */
+  function renderProgress(){
+    var dots = $('dots');
+    if(dots.children.length !== SECTIONS.length){
+      dots.innerHTML = '';
+      SECTIONS.forEach(function(sec, i){
+        var b = document.createElement('button');
+        b.className = 'dot';
+        b.title = 'Part ' + (i+1) + ': ' + sec.title;
+        b.setAttribute('aria-label', 'Go to part ' + (i+1) + ': ' + sec.title);
+        b.addEventListener('click', function(){ goSection(i); });
+        dots.appendChild(b);
+      });
+    }
+    var done = writtenCount();
+    for(var i=0;i<dots.children.length;i++){
+      var a = state.answers[SECTIONS[i].id];
+      dots.children[i].classList.toggle('done', !!(a && a.t && a.t.trim()));
+      dots.children[i].classList.toggle('current', i === state.current);
+    }
+    $('barfill').style.width = Math.round(done/SECTIONS.length*100) + '%';
+    $('progresstext').textContent = done + ' of ' + SECTIONS.length + ' written';
+  }
+
+  /* ============================ RENDER: PROMPT CARD ============================ */
+  function renderSection(animate){
+    var sec = SECTIONS[state.current];
+    var a = ans(sec.id);
+    if(a.p >= sec.prompts.length) a.p = 0;
+
+    $('eyebrow').textContent = 'Part ' + (state.current+1) + ' of ' + SECTIONS.length;
+    $('sec-title').textContent = sec.title;
+    $('sec-blurb').textContent = sec.blurb;
+
+    var p = $('prompt-text');
+    var setPrompt = function(){ p.textContent = '\u201C' + sec.prompts[a.p] + '\u201D'; };
+    if(animate){
+      p.classList.add('swap');
+      setTimeout(function(){ setPrompt(); p.classList.remove('swap'); }, 180);
+    } else { setPrompt(); }
+
+    var ta = $('ta');
+    ta.value = a.t || '';
+    updateWordCount();
+
+    $('btn-prev').disabled = (state.current === 0);
+    $('btn-next').textContent = (state.current === SECTIONS.length-1) ? 'See your letter \u2192' : 'Next \u2192';
+    renderProgress();
+    try{ ta.focus({preventScroll:true}); }catch(e){ ta.focus(); }
+    window.scrollTo({top: $('ta').offsetTop - 140, behavior:'smooth'});
+  }
+  function updateWordCount(){
+    var n = wordCount($('ta').value);
+    $('wordcount').textContent = n + (n === 1 ? ' word' : ' words');
+  }
+  function goSection(i){
+    state.current = Math.max(0, Math.min(SECTIONS.length-1, i));
+    scheduleSave();
+    renderSection(false);
+  }
+
+  /* ============================ LETTER ASSEMBLY ============================ */
+  function recipientLine(){
+    return state.recipient && state.recipient.trim()
+      ? 'Dear ' + state.recipient.trim()
+      : 'To whoever finds this';
+  }
+  function formatDate(iso){
+    if(!iso) return '';
+    var parts = iso.split('-');
+    if(parts.length !== 3) return iso;
+    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var mi = parseInt(parts[1],10) - 1;
+    if(isNaN(mi) || mi < 0 || mi > 11) return iso;
+    return months[mi] + ' ' + parseInt(parts[2],10) + ', ' + parts[0];
+  }
+  function bodyParagraphs(){
+    /* returns array of paragraph strings, in section order, skipping empties */
+    var out = [];
+    SECTIONS.forEach(function(sec){
+      var a = state.answers[sec.id];
+      if(a && a.t && a.t.trim()){
+        a.t.trim().split(/\n{2,}/).forEach(function(par){
+          var p = par.replace(/\n/g,' ').trim();
+          if(p) out.push(p);
+        });
+      }
+    });
+    return out;
+  }
+  function hasContent(){
+    return bodyParagraphs().length > 0;
+  }
+  function letterText(){
+    var parts = [];
+    var d = formatDate(state.date);
+    if(d) parts.push(d);
+    parts.push(recipientLine() + ',');
+    parts.push('');
+    bodyParagraphs().forEach(function(p){ parts.push(p); parts.push(''); });
+    parts.push((state.signoff || 'With all my love') + ',');
+    parts.push(state.writer && state.writer.trim() ? state.writer.trim() : '');
+    if(state.ps && state.ps.trim()){
+      parts.push('');
+      parts.push('P.S. ' + state.ps.trim());
+    }
+    return parts.join('\n').replace(/\n{3,}/g,'\n\n').trim() + '\n';
+  }
+  function renderLetter(){
+    var holder = $('letter-holder');
+    if(!hasContent()){
+      holder.innerHTML =
+        '<div class="sheet"><div class="emptyletter">Your letter is waiting \u2014<br>' +
+        'even two honest sentences are a beginning.</div></div>';
+      $('foundnote').hidden = true;
+      disableLetterActions(true);
+      return;
+    }
+    disableLetterActions(false);
+    var html = '<div class="sheet" id="sheet">';
+    var d = formatDate(state.date);
+    if(d) html += '<p class="dateline">' + esc(d) + '</p>';
+    html += '<p class="greet">' + esc(recipientLine()) + ',</p>';
+    bodyParagraphs().forEach(function(p){
+      html += '<p>' + esc(p).replace(/\n/g,'<br>') + '</p>';
+    });
+    html += '<div class="signoff">' + esc(state.signoff || 'With all my love') + ',<br>' +
+            '<strong>' + esc(state.writer && state.writer.trim() ? state.writer.trim() : '') + '</strong></div>';
+    if(state.ps && state.ps.trim()){
+      html += '<p class="ps">P.S. ' + esc(state.ps.trim()) + '</p>';
+    }
+    html += '</div>';
+    holder.innerHTML = html;
+    $('foundnote').hidden = false;
+  }
+  function disableLetterActions(off){
+    ['btn-listen','btn-copy','btn-dl-txt','btn-dl-html'].forEach(function(id){
+      $(id).disabled = off;
+    });
+  }
+
+  /* ============================ VIEWS ============================ */
+  var currentView = 'write';
+  function showView(v){
+    if(currentView === v) return;
+    stopSpeaking();
+    currentView = v;
+    $('view-write').hidden = (v !== 'write');
+    $('view-letter').hidden = (v !== 'letter');
+    $('tab-write').setAttribute('aria-selected', v === 'write');
+    $('tab-letter').setAttribute('aria-selected', v === 'letter');
+    if(v === 'letter'){
+      renderLetter();
+      window.scrollTo({top:0, behavior:'smooth'});
+    } else {
+      renderSection(false);
+    }
+  }
+
+  /* ============================ EXPORT ============================ */
+  function downloadFile(name, mime, content){
+    try{
+      var blob = new Blob([content], {type:mime});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 5000);
+      toast('Download started \u2014 ' + name);
+    }catch(e){
+      toast('Downloads are blocked in this preview. Open the file in your browser to save it.');
+    }
+  }
+  function safeFileName(){
+    var who = (state.recipient||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    return 'letter-to-' + (who || 'my-loved-one') + '.txt';
+  }
+  function keepsakeHtml(){
+    var d = formatDate(state.date);
+    var body = '';
+    bodyParagraphs().forEach(function(p){
+      body += '<p>' + esc(p) + '</p>';
+    });
+    return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">' +
+      '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<title>A letter that stays</title><style>' +
+      'body{margin:0;background:#f6f1e6;font-family:Georgia,serif;color:#35312a}' +
+      '.sheet{max-width:680px;margin:6vh auto;background:#fffdf6;border:1px solid #eadfc6;' +
+      'border-radius:6px;box-shadow:0 12px 40px rgba(60,45,20,.12);padding:clamp(30px,7vw,70px)}' +
+      '.date{text-align:right;color:#8b8271;font-style:italic;margin:0 0 30px}' +
+      '.greet{font-size:19px;margin:0 0 24px}' +
+      'p{font-size:16.5px;line-height:1.8;margin:0 0 1.15em}' +
+      '.signoff{margin-top:34px;line-height:1.9}' +
+      '.ps{margin-top:26px;font-style:italic;color:#6d6353}' +
+      '.mark{text-align:center;color:#b3a888;font-size:12px;margin:26px 0;letter-spacing:.2em}' +
+      '.creditline{text-align:center;color:#a99e86;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;margin:30px 16px 44px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif}' +
+      '@media print{body{background:#fff}.sheet{box-shadow:none;border:0;margin:0;max-width:none}}' +
+      '</style></head><body><div class="sheet">' +
+      (d ? '<p class="date">' + esc(d) + '</p>' : '') +
+      '<p class="greet">' + esc(recipientLine()) + ',</p>' + body +
+      '<div class="signoff">' + esc(state.signoff || 'With all my love') + ',<br><strong>' +
+      esc(state.writer || '') + '</strong></div>' +
+      (state.ps && state.ps.trim() ? '<p class="ps">P.S. ' + esc(state.ps.trim()) + '</p>' : '') +
+      '<p class="mark">\u2022 \u2022 \u2022</p>' +
+      '</div><p class="creditline">Created by Rocaudio\u2122 Tech Company Europe</p></body></html>';
+  }
+  function copyLetter(){
+    var text = letterText();
+    var done = function(){ toast('Copied. Somewhere safe, please.'); };
+    var fail = function(){ toast('Copy is blocked in this preview \u2014 open the file in your browser.'); };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(fallbackCopy);
+    } else { fallbackCopy(); }
+    function fallbackCopy(){
+      try{
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        var ok = document.execCommand('copy');
+        ta.remove();
+        ok ? done() : fail();
+      }catch(e){ fail(); }
+    }
+  }
+
+  /* ============================ SPEECH ============================ */
+  var speaking = false;
+  function speechOk(){
+    try{ return ('speechSynthesis' in window) && !!window.SpeechSynthesisUtterance; }
+    catch(e){ return false; }
+  }
+  function setSpeakUI(on){
+    speaking = on;
+    $('btn-listen').textContent = on ? '\u25A0 Stop reading' : '\uD83D\uDD0A Read it to me';
+  }
+  function stopSpeaking(){
+    if(speaking && speechOk()){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+    setSpeakUI(false);
+  }
+  function listen(){
+    if(!speechOk()){ toast('Your browser can\u2019t read aloud here \u2014 try opening the file in a full browser.'); return; }
+    if(speaking){ stopSpeaking(); return; }
+    var parts = [];
+    var d = formatDate(state.date);
+    if(d) parts.push(d);
+    parts.push(recipientLine() + ',');
+    parts = parts.concat(bodyParagraphs());
+    parts.push((state.signoff || 'With all my love') + ', ' + (state.writer || ''));
+    if(state.ps && state.ps.trim()) parts.push('P.S. ' + state.ps.trim());
+
+    try{ window.speechSynthesis.cancel(); }catch(e){}
+    var last = null;
+    parts.forEach(function(t){
+      if(!t || !t.trim()) return;
+      var u = new SpeechSynthesisUtterance(t);
+      u.rate = 0.94; u.pitch = 1;
+      last = u;
+      window.speechSynthesis.speak(u);
+    });
+    if(last){
+      last.onend = function(){ setSpeakUI(false); };
+      last.onerror = function(){ setSpeakUI(false); };
+      setSpeakUI(true);
+    } else {
+      toast('Nothing to read yet \u2014 write a little first.');
+    }
+  }
+
+  /* ============================ EVENTS ============================ */
+  $('ta').addEventListener('input', function(){
+    ans(SECTIONS[state.current].id).t = $('ta').value;
+    updateWordCount();
+    renderProgress();
+    scheduleSave();
+  });
+
+  $('btn-shuffle').addEventListener('click', function(){
+    var sec = SECTIONS[state.current];
+    var a = ans(sec.id);
+    if(sec.prompts.length < 2) return;
+    var next;
+    do { next = Math.floor(Math.random()*sec.prompts.length); } while(next === a.p);
+    a.p = next;
+    scheduleSave();
+    renderSection(true);
+  });
+
+  $('btn-prev').addEventListener('click', function(){ goSection(state.current - 1); });
+  $('btn-skip').addEventListener('click', function(){ goSection(state.current + 1); });
+  $('btn-next').addEventListener('click', function(){
+    if(state.current === SECTIONS.length - 1){
+      showView('letter');
+    } else {
+      goSection(state.current + 1);
+    }
+  });
+
+  $('tab-write').addEventListener('click', function(){ showView('write'); });
+  $('tab-letter').addEventListener('click', function(){ showView('letter'); });
+  $('btn-edit').addEventListener('click', function(){ showView('write'); });
+
+  $('btn-listen').addEventListener('click', listen);
+  $('btn-copy').addEventListener('click', copyLetter);
+  $('btn-dl-txt').addEventListener('click', function(){
+    downloadFile(safeFileName(), 'text/plain;charset=utf-8', letterText());
+  });
+  $('btn-dl-html').addEventListener('click', function(){
+    var name = safeFileName().replace(/\.txt$/,'') + '-keepsake.html';
+    downloadFile(name, 'text/html;charset=utf-8', keepsakeHtml());
+  });
+  $('btn-print').addEventListener('click', function(){
+    try{ window.print(); }catch(e){ toast('Printing is blocked here \u2014 open the file in your browser.'); }
+  });
+
+  $('intro-close').addEventListener('click', function(){
+    $('intro').hidden = true;
+    state.introDone = true;
+    scheduleSave();
+  });
+
+  document.addEventListener('keydown', function(e){
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+      e.preventDefault();
+      $('btn-next').click();
+    }
+  });
+
+  window.addEventListener('beforeunload', function(e){
+    if(memoryOnly && hasContent()){
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
+  /* ============================ INIT ============================ */
+  if(state.introDone){ $('intro').hidden = true; }
+  if(memoryOnly){
+    setSaveInd('kept in memory \u2014 use Copy / Save to keep it');
+  } else {
+    setSaveInd(state.answers && writtenCount() ? '<b>draft restored</b> \u2713' : '');
+  }
+  bindSetup();
+  renderSection(false);
+})();
+</script>
+</body>
+</html>

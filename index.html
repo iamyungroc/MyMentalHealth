@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rocaudio™ — small, honest web apps</title>
+<style>
+  :root{
+    --bg:#f2f3f7; --card:#ffffff; --ink:#1c2330; --soft:#68718200;
+    --muted:#67707f; --line:#e2e6ee;
+    --indigo:#3b5bdb; --terra:#9c5530; --teal:#0e7468;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--sans);color:#1c2330;line-height:1.6;
+    background:radial-gradient(1000px 480px at 85% -10%,#fbfbfe 0%,transparent 60%),
+               radial-gradient(800px 420px at -10% 0%,#e8ebf4 0%,transparent 55%),var(--bg);}
+  .wrap{max-width:980px;margin:0 auto;padding:34px 20px 70px}
+  a{color:#3b5bdb}
+  header.mast{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+  .mark{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#22314f,#3b5bdb);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:24px;box-shadow:0 6px 18px rgba(34,49,79,.25)}
+  .brand{font-size:26px;font-weight:900;letter-spacing:-.02em}
+  .brand sup{font-size:11px;color:#3b5bdb}
+  .brandsub{font-size:13px;color:#67707f;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+  .lede{font-size:clamp(17px,2.4vw,21px);color:#3a4457;margin:18px 0 6px;max-width:720px}
+  .lede b{color:#1c2330}
+  .promise{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 30px}
+  .pill{font-size:12.5px;font-weight:800;border-radius:999px;padding:5px 14px;background:#fff;border:1px solid var(--line);color:#4a5568}
+  .pill b{color:#2b8a3e}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+  .app{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 2px 8px rgba(20,35,60,.05),0 16px 38px rgba(20,35,60,.07);display:flex;flex-direction:column;gap:10px;transition:transform .18s}
+  .app:hover{transform:translateY(-2px)}
+  .app .icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+  .app h2{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em}
+  .app h2 sup{font-size:10px}
+  .app p{margin:0;font-size:14px;color:#5b6577;flex:1}
+  .app .tags{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#8b94a5}
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+  .btn{display:inline-block;text-decoration:none;border-radius:10px;padding:9px 16px;font-size:13.5px;font-weight:800;border:1.5px solid transparent}
+  .btn.open{color:#fff}
+  .btn.dl{background:#fff;border-color:var(--line);color:#4a5568}
+  .btn.dl:hover{border-color:#b9c2d4}
+  .i-indigo{background:#e8edfc;color:#3b5bdb}.b-indigo{background:#3b5bdb}
+  .i-terra{background:#f3e5da;color:#9c5530}.b-terra{background:#9c5530}
+  .i-teal{background:#e2f0ed;color:#0e7468}.b-teal{background:#0e7468}
+  .why{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;margin-top:18px}
+  .why h3{margin:0 0 8px;font-size:16px}
+  .why p{margin:.4em 0;font-size:14px;color:#5b6577}
+  .bundle{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:linear-gradient(135deg,#22314f,#33456e);color:#eef1f8;border-radius:18px;padding:20px 22px;margin-top:18px}
+  .bundle .t{font-weight:800;font-size:15.5px}
+  .bundle .d{font-size:13px;opacity:.85;flex:1;min-width:200px}
+  .bundle a{background:#fff;color:#22314f;border-radius:10px;padding:9px 16px;font-size:13.5px;font-weight:800;text-decoration:none}
+  .legal{font-size:12.5px;color:#7c8595;margin-top:26px;line-height:1.7;border-top:1px solid var(--line);padding-top:16px}
+  footer{margin-top:30px;text-align:center;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#939cad}
+  footer b{color:#1c2330}
+  footer sup{font-size:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="mast">
+    <div class="mark">R</div>
+    <div>
+      <div class="brand">Rocaudio<sup>&trade;</sup></div>
+      <div class="brandsub">Tech Company Europe &middot; Web Apps</div>
+    </div>
+  </header>
+
+  <p class="lede">Three small, honest web apps. <b>No accounts. No tracking. No cloud.</b> Each one is a single HTML file that runs entirely in your browser &mdash; open it, use it, keep it forever.</p>
+  <div class="promise">
+    <span class="pill"><b>&#10003;</b> Free &amp; open source (MIT)</span>
+    <span class="pill"><b>&#10003;</b> Works offline</span>
+    <span class="pill"><b>&#10003;</b> Your data never leaves your device</span>
+    <span class="pill"><b>&#10003;</b> No ads, ever</span>
+  </div>
+
+  <div class="grid">
+
+    <div class="app">
+      <div class="icon i-indigo">
+        <svg viewBox="0 0 48 48" width="26" height="26" aria-hidden="true"><rect x="4" y="8" width="40" height="32" rx="8" fill="none" stroke="currentColor" stroke-width="3"/><path d="M9 26h6l3-8 5 16 4-11 2.5 3H39" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="tags">Screening &middot; Cognition</div>
+      <h2>MindBaseline<sup>&trade;</sup></h2>
+      <p>Mental-health screening with the instruments clinicians actually use (PHQ&#8209;9, GAD&#8209;7, WHO&#8209;5, Mini&#8209;IPIP), plus six timed cognitive tasks &mdash; working memory, reaction time, Stroop, reasoning, mental math and a rotating 60&#8209;word verbal battery. Straight results, standard bands, honest limits. No fake IQ number.</p>
+      <div class="btnrow">
+        <a class="btn open b-indigo" href="mindbaseline.html">Open app</a>
+        <a class="btn dl" href="mindbaseline.html" download>Download</a>
+      </div>
+    </div>
+
+    <div class="app">
+      <div class="icon i-terra">
+        <svg viewBox="0 0 48 48" width="26" height="26" aria-hidden="true"><rect x="6" y="17" width="36" height="23" rx="3" fill="none" stroke="currentColor" stroke-width="3"/><path d="M6.5 20 24 32 41.5 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M24 15V6.5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M24 10c-4.5 0-6.8-2.2-7.8-5.8C20.8 3.6 23.4 5.9 24 10Z" fill="currentColor"/></svg>
+      </div>
+      <div class="tags">Keepsake &middot; Writing</div>
+      <h2>Letters That Stay</h2>
+      <p>A quiet studio for writing an ethical will &mdash; the letter of everything money can&rsquo;t buy. Eight gentle prompt stations, autosave, and a beautiful assembled letter you can print, read aloud, or export as a keepsake page. The one letter almost nobody writes, and every family treasures.</p>
+      <div class="btnrow">
+        <a class="btn open b-terra" href="letters-that-stay.html">Open app</a>
+        <a class="btn dl" href="letters-that-stay.html" download>Download</a>
+      </div>
+    </div>
+
+    <div class="app">
+      <div class="icon i-teal">
+        <svg viewBox="0 0 48 48" width="26" height="26" aria-hidden="true"><circle cx="11" cy="24" r="4.4" fill="currentColor"/><path d="M19.5 15.5a12 12 0 0 1 0 17" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M26.5 10a20 20 0 0 1 0 28" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".7"/><path d="M33.5 5a28 28 0 0 1 0 38" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".42"/></svg>
+      </div>
+      <div class="tags">Practice &middot; Relationships</div>
+      <h2>The Listening Gym</h2>
+      <p>Reps for the skill nobody ever taught: listening. Twelve written scenes &mdash; a partner, a teen, a grieving parent, a colleague with a diagnosis. Type your reply; the coach flags fix&#8209;it mode, silver linings and story hijacking, then shows what was underneath and a reply that lands.</p>
+      <div class="btnrow">
+        <a class="btn open b-teal" href="listening-gym.html">Open app</a>
+        <a class="btn dl" href="listening-gym.html" download>Download</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bundle">
+    <div style="flex:1;min-width:220px">
+      <div class="t">Take the whole set</div>
+      <div class="d">All three apps + license + readme in one small zip (~64&nbsp;KB). Unzip anywhere, double&#8209;click any app. Works on any device with a browser &mdash; no internet required after download.</div>
+    </div>
+    <a href="rocaudio-apps.zip" download>Download bundle</a>
+  </div>
+
+  <div class="why">
+    <h3>Why these are free</h3>
+    <p>The clinical questionnaires in MindBaseline (PHQ&#8209;9, GAD&#8209;7, WHO&#8209;5, Mini&#8209;IPIP) are public&#8209;domain instruments that exist so <em>everyone</em> can be screened. Putting a paywall between a struggling person and a screener would betray the instruments and the point. No servers, no accounts, no running costs &mdash; so there is nothing to recover.</p>
+    <p>The code is MIT&#8209;licensed: use it, learn from it, fork it, ship it. The <b>Rocaudio&trade;</b> name and mark are not part of that grant &mdash; if you fork, please rename.</p>
+  </div>
+
+  <p class="legal">
+    <b>Disclaimer.</b> MindBaseline is a screening and practice tool &mdash; <b>not a medical device, not a diagnosis, and not an IQ test</b>. Only a qualified professional can diagnose. If results concern you, or if you are having thoughts of harming yourself, contact a professional or your local emergency number; <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a> lists free helplines in 130+ countries (US/CA: 988 &middot; UK/IE: Samaritans 116&nbsp;123 &middot; AU: Lifeline 13&nbsp;11&nbsp;14).
+    <br><b>Privacy.</b> Every app runs entirely in your browser and stores data only in your own device&rsquo;s local storage. Nothing is uploaded, tracked, or sold &mdash; there is no server to send anything to.
+    <br><b>Instruments.</b> PHQ&#8209;9 (Kroenke, Spitzer &amp; Williams, 2001) and GAD&#8209;7 (Spitzer et al., 2006) are public domain. WHO&#8209;5 &copy; WHO, free to use. Mini&#8209;IPIP items: Donnellan et al. (2006), public domain via IPIP (ipip.ori.org).
+  </p>
+
+  <footer>
+    Created by <b>Rocaudio<sup>&trade;</sup></b> &nbsp;Tech Company Europe
+  </footer>
+
+</div>
+</body>
+</html>

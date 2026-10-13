@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MindBaseline — mind &amp; brain, scored straight</title>
+<style>
+  :root{
+    --bg:#edf0f5; --card:#ffffff; --ink:#1d2733; --soft:#64707e;
+    --line:#dde3ec; --accent:#3b5bdb; --accent-deep:#2f4bc0; --accent-tint:#e8edfc;
+    --good:#2b8a3e; --good-tint:#e7f4e9;
+    --warn:#b45309; --warn-tint:#fdf1e2;
+    --danger:#c92a2a; --danger-tint:#fdecec;
+    --radius:14px;
+    --shadow:0 2px 8px rgba(20,35,60,.06),0 14px 34px rgba(20,35,60,.07);
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--sans);color:var(--ink);line-height:1.55;min-height:100vh;
+    background:radial-gradient(900px 420px at 90% -10%,#f4f6fb 0%,transparent 60%),
+               radial-gradient(700px 400px at -10% 0%,#e4eaf4 0%,transparent 55%),var(--bg);}
+  button{font-family:inherit;cursor:pointer}
+  input,select,textarea{font-family:inherit;color:var(--ink)}
+  .wrap{max-width:900px;margin:0 auto;padding:22px 18px 60px}
+  [hidden]{display:none !important}
+
+  header.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+  .logo{color:var(--accent);flex:0 0 auto}
+  .titleblock{flex:1 1 240px;min-width:200px}
+  h1{font-size:clamp(22px,3.4vw,29px);font-weight:800;margin:0;letter-spacing:-.03em}
+  h1 .tm{font-size:.44em;font-weight:700;vertical-align:super;letter-spacing:0;color:var(--accent);margin-left:2px}
+  h1 .sub{font-weight:400;color:var(--soft)}
+  .tagline{margin:2px 0 0;color:var(--soft);font-size:14px;font-style:italic}
+  .tabs{display:flex;gap:6px;background:#e0e6ef;border:1px solid var(--line);border-radius:999px;padding:4px;flex-wrap:wrap}
+  .tabs button{border:0;background:transparent;border-radius:999px;padding:8px 15px;font-size:13.5px;font-weight:700;color:var(--soft);transition:all .2s}
+  .tabs button[aria-selected="true"]{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(20,35,60,.18)}
+  button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
+  .kicker{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0 0 6px}
+  h2{font-size:20px;font-weight:800;margin:0 0 8px;letter-spacing:-.01em}
+  h3{font-size:16.5px;font-weight:800;margin:0 0 8px}
+  p.mut{color:var(--soft);font-size:14px;margin:.4em 0}
+  .btn{border-radius:10px;padding:10px 18px;font-size:14px;font-weight:700;border:1px solid transparent;transition:all .18s}
+  .btn.primary{background:var(--accent);color:#fff}
+  .btn.primary:hover{background:var(--accent-deep)}
+  .btn.ghost{background:transparent;border-color:var(--line);color:var(--soft)}
+  .btn.ghost:hover{color:var(--ink);border-color:#c3ccda}
+  .btn.danger{background:transparent;border-color:#ecc9c9;color:var(--danger)}
+  .btn:disabled{opacity:.4;cursor:default}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .spacer{flex:1}
+
+  .steps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .step{font-size:11.5px;font-weight:800;border-radius:999px;padding:4px 11px;background:#eef1f6;color:var(--soft);border:1px solid var(--line)}
+  .step.done{background:var(--good-tint);color:var(--good);border-color:#cde5d2}
+  .step.now{background:var(--accent-tint);color:var(--accent);border-color:#cdd8f5}
+
+  /* questionnaires */
+  .qhead{font-size:13.5px;color:var(--soft);font-style:italic;margin:0 0 14px}
+  .qrow{padding:12px 0;border-bottom:1px solid #eef1f6}
+  .qrow:last-of-type{border-bottom:0}
+  .qtext{font-size:14.5px;font-weight:600;margin-bottom:8px}
+  .opts{display:flex;gap:8px;flex-wrap:wrap}
+  .opt{position:relative;display:inline-block}
+  .opt input{position:absolute;opacity:0;inset:0;cursor:pointer}
+  .opt span{display:inline-block;border:1.5px solid var(--line);border-radius:999px;padding:6px 13px;font-size:13px;font-weight:600;color:var(--soft);background:#fbfcfe;transition:all .15s;cursor:pointer}
+  .opt input:checked + span{border-color:var(--accent);background:var(--accent-tint);color:var(--accent-deep)}
+  .opt input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px}
+  .qfoot{display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+  .qcount{font-size:13px;color:var(--soft);font-weight:600}
+
+  /* safety + honesty blocks */
+  .safety{border:2px solid #e8b4b4;background:var(--danger-tint);border-radius:14px;padding:18px;margin-bottom:16px}
+  .safety h3{color:var(--danger);margin-bottom:6px}
+  .safety p{font-size:14px;margin:.45em 0;color:#5d2626}
+  .safety ul{margin:8px 0 4px;padding-left:20px;font-size:13.5px;color:#5d2626}
+  .safety a{color:var(--danger);font-weight:700}
+  .honest{border:1.5px dashed #c9d3e3;background:#f6f8fc;border-radius:12px;padding:14px 16px;font-size:13.5px;color:#41506b;margin:14px 0}
+  .honest b{color:var(--accent-deep)}
+  .disclaimer{font-size:12.5px;color:var(--soft);border-top:1px solid var(--line);margin-top:14px;padding-top:10px}
+
+  /* score blocks */
+  .scoregrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+  .scorebox{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fbfcfe}
+  .scorebox .lab{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+  .scorebox .big{font-family:var(--mono);font-size:34px;font-weight:700;margin:4px 0;letter-spacing:-.02em}
+  .scorebox .band{display:inline-block;font-size:12px;font-weight:800;border-radius:999px;padding:3px 11px}
+  .band.min{background:var(--good-tint);color:var(--good)}
+  .band.mild{background:#fdf6e0;color:#8a6d1a}
+  .band.mod{background:var(--warn-tint);color:var(--warn)}
+  .band.sev{background:var(--danger-tint);color:var(--danger)}
+  .verdict{font-size:13.5px;margin-top:8px;color:#3d4a5c}
+  .plain{border-left:3px solid var(--accent);background:#f4f7fe;border-radius:0 10px 10px 0;padding:12px 15px;font-size:14.5px;margin:14px 0}
+  .plain b{color:var(--accent-deep)}
+
+  /* personality bars */
+  .frow{display:flex;align-items:center;gap:10px;margin:9px 0;font-size:13.5px}
+  .frow .fl{flex:0 0 210px;font-weight:700}
+  .frow .fb{flex:1;height:10px;background:#e9edf4;border-radius:99px;overflow:hidden;position:relative}
+  .frow .fb i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#6d8df0);border-radius:99px;transition:width .6s}
+  .frow .fv{flex:0 0 58px;text-align:right;font-family:var(--mono);font-weight:700;font-size:12.5px}
+  .fdesc{font-size:13px;color:var(--soft);margin:-4px 0 10px 0;padding-left:2px}
+  @media(max-width:600px){.frow .fl{flex-basis:130px}}
+
+  /* brain tasks */
+  .taskgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .taskcard{border:1px solid var(--line);border-radius:12px;background:#fbfcfe;padding:14px;text-align:left;transition:all .18s;width:100%}
+  .taskcard:hover{border-color:#b9c7ee;transform:translateY(-1px)}
+  .taskcard .tt{font-weight:800;font-size:14.5px;margin-bottom:3px}
+  .taskcard .td{font-size:12.5px;color:var(--soft)}
+  .taskcard .ts{margin-top:8px;font-size:12px;font-weight:800}
+  .ts.done{color:var(--good)} .ts.todo{color:#b7c0cd}
+  .arena{border:1px solid var(--line);border-radius:12px;background:#f8fafd;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;position:relative}
+  .digit{font-family:var(--mono);font-size:76px;font-weight:700;letter-spacing:.05em;color:var(--accent-deep);min-height:92px;display:flex;align-items:center}
+  .rtbox{width:100%;min-height:210px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;user-select:none;cursor:pointer;transition:background .1s}
+  .rtbox.idle{background:#e6ebf5;color:#3d4a5c;border:1.5px dashed #b9c4d8}
+  .rtbox.wait{background:#fdecec;color:#a02626}
+  .rtbox.go{background:#e3f6e8;color:#1d7a35}
+  .stroopword{font-size:58px;font-weight:900;letter-spacing:.04em;min-height:76px;font-family:var(--mono)}
+  .colorbtns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;justify-content:center}
+  .cbtn{width:96px;height:52px;border-radius:12px;border:0;color:#fff;font-weight:900;font-size:15px;letter-spacing:.06em;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+  .cbtn:disabled{opacity:.35}
+  .seq{font-family:var(--mono);font-size:30px;font-weight:700;letter-spacing:.03em;margin:10px 0 16px}
+  .choices{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .choice{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:11px 20px;font-size:16px;font-weight:700;font-family:var(--mono)}
+  .choice:hover{border-color:var(--accent)}
+  .choice.right{border-color:var(--good);background:var(--good-tint);color:var(--good)}
+  .choice.wrong{border-color:var(--danger);background:var(--danger-tint);color:var(--danger)}
+  .mathq{font-family:var(--mono);font-size:44px;font-weight:700;margin:8px 0 14px}
+  .mathin{width:150px;font-family:var(--mono);font-size:26px;font-weight:700;text-align:center;border:2px solid var(--line);border-radius:10px;padding:8px}
+  .timebar{position:absolute;top:0;left:0;height:5px;background:var(--accent);border-radius:0 4px 4px 0;transition:width .1s linear}
+  .mini-in{font-family:var(--mono);font-size:22px;letter-spacing:.35em;text-align:center;border:2px solid var(--line);border-radius:10px;padding:9px 14px;width:260px;max-width:100%}
+  .feedback{font-size:14px;font-weight:800;min-height:22px;margin-top:10px}
+  .fb-good{color:var(--good)} .fb-bad{color:var(--danger)}
+  .ctxrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+  .ctxrow .field{flex:1;min-width:200px}
+  .field label{display:block;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin-bottom:5px}
+  .field select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:14px}
+
+  /* report */
+  .rep-sec{border-top:1px solid var(--line);margin-top:18px;padding-top:16px}
+  .rep-sec:first-child{border-top:0;margin-top:0;padding-top:0}
+  table.res{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.res th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--soft);padding:6px 8px;border-bottom:1.5px solid var(--line)}
+  table.res td{padding:8px;border-bottom:1px solid #eef1f6;vertical-align:top}
+  table.res td.num{font-family:var(--mono);font-weight:700;white-space:nowrap}
+  .vtag{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:2px 9px}
+  .vtag.a{background:var(--good-tint);color:var(--good)}
+  .vtag.w{background:#fdf6e0;color:#8a6d1a}
+  .vtag.b{background:var(--warn-tint);color:var(--warn)}
+
+  footer.foot{text-align:center;color:var(--soft);font-size:12.5px;margin-top:34px;line-height:1.7}
+  .credit{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:#8b95a3}
+  .credit .brand{color:var(--ink);font-weight:800;letter-spacing:.1em}
+  .credit .brand sup{font-size:8.5px;letter-spacing:0}
+  #toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,80px);background:#222c3a;color:#eef2f8;border-radius:12px;padding:11px 18px;font-size:13.5px;box-shadow:0 8px 30px rgba(0,0,0,.3);opacity:0;transition:all .3s;z-index:50;max-width:86vw;text-align:center}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+  @media print{
+    .no-print{display:none !important}
+    body{background:#fff}
+    .card{box-shadow:none;border-color:#ddd}
+    header.top,.tabs,#toast{display:none !important}
+    footer.foot{margin-top:22px;color:#555;border-top:1px solid #ccc;padding-top:10px}
+    .credit{color:#555;border-top-color:#ccc}
+    .credit .brand{color:#000}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top no-print">
+    <svg class="logo" viewBox="0 0 48 48" width="38" height="38" aria-hidden="true">
+      <rect x="4" y="8" width="40" height="32" rx="8" fill="none" stroke="currentColor" stroke-width="2.6"/>
+      <path d="M9 26 h6 l3-8 5 16 4-11 2.5 3 H39" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="titleblock">
+      <h1>Mind<span class="sub">Baseline</span><span class="tm">&trade;</span></h1>
+      <p class="tagline">mental health &amp; cognitive ability &mdash; scored straight, no flattery, no horoscope</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Modules">
+      <button id="tab-start" role="tab" aria-selected="true">Start</button>
+      <button id="tab-mind" role="tab" aria-selected="false">Mind</button>
+      <button id="tab-brain" role="tab" aria-selected="false">Brain</button>
+      <button id="tab-report" role="tab" aria-selected="false">Report</button>
+    </div>
+  </header>
+
+  <!-- ============ START ============ -->
+  <main id="view-start" role="tabpanel" aria-labelledby="tab-start">
+    <section class="card">
+      <p class="kicker">What this is</p>
+      <h2>Two honest check-ups: your mind, and your brain.</h2>
+      <p class="mut" style="font-size:14.5px"><b>Mind</b> uses real clinical instruments that doctors actually use &mdash; PHQ&#8209;9 (depression), GAD&#8209;7 (anxiety), WHO&#8209;5 (wellbeing) &mdash; plus the Mini&#8209;IPIP, a validated 20-item Big&nbsp;Five personality measure. <b>Brain</b> runs six timed cognitive tasks measuring working memory, processing speed, attention control, reasoning, numeracy and verbal ability. ~20 minutes total. Results are blunt: raw scores, standard bands, plain-language verdicts.</p>
+    </section>
+
+    <section class="card">
+      <p class="kicker">The honesty charter</p>
+      <h3>What &ldquo;direct and truthful&rdquo; means here</h3>
+      <p class="mut">1.&nbsp;<b>Validated instruments, standard scoring.</b> No invented &ldquo;vibe quizzes&rdquo; &mdash; the questionnaires are the published ones, scored the published way.</p>
+      <p class="mut">2.&nbsp;<b>Plain results.</b> Scores, bands, thresholds, and what to do about them. No sugar-coating, no mystical vagueness.</p>
+      <p class="mut">3.&nbsp;<b>Honest limits.</b> These are <b>screeners, not diagnoses</b> &mdash; only a professional can diagnose. And you will get <b>no IQ number</b>, because a real IQ test takes 1&ndash;2 hours with a trained examiner; any website that prints you an IQ is lying. What you get instead: honest per-skill numbers vs. typical adult ranges.</p>
+      <p class="mut">4.&nbsp;<b>Private.</b> Everything stays in this browser. Nothing is uploaded. Ever.</p>
+    </section>
+
+    <section class="card">
+      <p class="kicker">Begin</p>
+      <label style="display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--soft);cursor:pointer">
+        <input type="checkbox" id="consent" style="margin-top:3px;width:16px;height:16px">
+        <span>I understand these are screening and practice tools, <b>not a diagnosis and not an IQ test</b>; results are estimates from one sitting and are stored only in this browser.</span>
+      </label>
+      <div class="row" style="margin-top:14px">
+        <button class="btn primary" id="btn-start-mind" disabled>Check my mind &rarr;</button>
+        <button class="btn ghost" id="btn-start-brain" disabled>Check my brain &rarr;</button>
+        <span class="spacer"></span>
+        <span id="start-status" class="qcount"></span>
+      </div>
+    </section>
+
+    <section class="card safety" style="border-width:1.5px">
+      <h3 style="font-size:15px">Before you start &mdash; one promise</h3>
+      <p style="font-size:13.5px">If answering honestly brings up thoughts of hurting yourself, that is exactly why this check exists. You can stop at any point and reach out: your local emergency number, <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a> (free helplines in 130+ countries), or in the US/Canada call or text <b>988</b>. Being honest here is safe &mdash; nothing leaves this device.</p>
+    </section>
+  </main>
+
+  <!-- ============ MIND ============ -->
+  <main id="view-mind" role="tabpanel" aria-labelledby="tab-mind" hidden>
+    <div class="steps no-print" id="mind-steps"></div>
+    <div id="mind-body"></div>
+  </main>
+
+  <!-- ============ BRAIN ============ -->
+  <main id="view-brain" role="tabpanel" aria-labelledby="tab-brain" hidden>
+    <div id="brain-body"></div>
+  </main>
+
+  <!-- ============ REPORT ============ -->
+  <main id="view-report" role="tabpanel" aria-labelledby="tab-report" hidden>
+    <div class="row no-print" style="margin-bottom:14px">
+      <button class="btn ghost" id="btn-copy-report">&#10697; Copy report</button>
+      <button class="btn ghost" id="btn-dl-report">&#11015; Save .txt</button>
+      <button class="btn ghost" id="btn-print-report">&#128424; Print</button>
+      <span class="spacer"></span>
+      <button class="btn danger" id="btn-reset">Reset everything</button>
+    </div>
+    <div id="report-body"></div>
+  </main>
+
+  <footer class="foot">
+    MindBaseline &mdash; a private screening &amp; practice tool. Not a medical device, not a diagnosis, not an IQ test.<br>
+    If results concern you, take them to a professional. That is the truthful next step, and it is a strong one.
+    <div class="credit">Created by <span class="brand">Rocaudio<sup>&trade;</sup></span> &nbsp;Tech Company Europe</div>
+  </footer>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ==================== INSTRUMENT DATA (published, public-domain) ==================== */
+  var SCALE_0_3 = [
+    {v:0,l:'Not at all'},{v:1,l:'Several days'},
+    {v:2,l:'More than half the days'},{v:3,l:'Nearly every day'}
+  ];
+  var PHQ_ITEMS = [
+    'Little interest or pleasure in doing things',
+    'Feeling down, depressed, or hopeless',
+    'Trouble falling or staying asleep, or sleeping too much',
+    'Feeling tired or having little energy',
+    'Poor appetite or overeating',
+    'Feeling bad about yourself \u2014 or that you are a failure or have let yourself or your family down',
+    'Trouble concentrating on things, such as reading the newspaper or watching television',
+    'Moving or speaking so slowly that other people could have noticed? Or the opposite \u2014 being so fidgety or restless that you have been moving around a lot more than usual',
+    'Thoughts that you would be better off dead, or of hurting yourself in some way'
+  ];
+  var GAD_ITEMS = [
+    'Feeling nervous, anxious, or on edge',
+    'Not being able to stop or control worrying',
+    'Worrying too much about different things',
+    'Trouble relaxing',
+    'Being so restless that it\u2019s hard to sit still',
+    'Becoming easily annoyed or irritable',
+    'Feeling afraid, as if something awful might happen'
+  ];
+  var WHO_ITEMS = [
+    'I have felt cheerful and in good spirits',
+    'I have felt calm and relaxed',
+    'I have felt active and vigorous',
+    'I woke up feeling fresh and rested',
+    'My daily life has been filled with things that interest me'
+  ];
+  var SCALE_WHO = [
+    {v:5,l:'All of the time'},{v:4,l:'Most of the time'},{v:3,l:'More than half of the time'},
+    {v:2,l:'Less than half of the time'},{v:1,l:'Some of the time'},{v:0,l:'At no time'}
+  ];
+  /* Mini-IPIP (Donnellan et al., 2006) — items & keys per ipip.ori.org/MiniIPIPKey.htm */
+  var IPIP_ITEMS = [
+    {t:'Am the life of the party.',f:'E',r:false},
+    {t:'Sympathize with others\u2019 feelings.',f:'A',r:false},
+    {t:'Get chores done right away.',f:'C',r:false},
+    {t:'Have frequent mood swings.',f:'N',r:false},
+    {t:'Have a vivid imagination.',f:'O',r:false},
+    {t:'Don\u2019t talk a lot.',f:'E',r:true},
+    {t:'Am not really interested in others.',f:'A',r:true},
+    {t:'Often forget to put things back in their proper place.',f:'C',r:true},
+    {t:'Am relaxed most of the time.',f:'N',r:true},
+    {t:'Have difficulty understanding abstract ideas.',f:'O',r:true},
+    {t:'Talk to a lot of different people at parties.',f:'E',r:false},
+    {t:'Feel others\u2019 emotions.',f:'A',r:false},
+    {t:'Like order.',f:'C',r:false},
+    {t:'Get upset easily.',f:'N',r:false},
+    {t:'Am not interested in abstract ideas.',f:'O',r:true},
+    {t:'Keep in the background.',f:'E',r:true},
+    {t:'Am not interested in other people\u2019s problems.',f:'A',r:true},
+    {t:'Make a mess of things.',f:'C',r:true},
+    {t:'Seldom feel blue.',f:'N',r:true},
+    {t:'Do not have a good imagination.',f:'O',r:true}
+  ];
+  var SCALE_IPIP = [
+    {v:1,l:'Very inaccurate'},{v:2,l:'Moderately inaccurate'},{v:3,l:'Neither accurate nor inaccurate'},
+    {v:4,l:'Moderately accurate'},{v:5,l:'Very accurate'}
+  ];
+
+  /* ==================== COGNITIVE TASK DATA ==================== */
+  var REASON_ITEMS = [
+    {q:'2, 4, 8, 16, __', opts:[20,24,32,64], a:32, why:'Each term doubles.'},
+    {q:'100, 96, 88, 76, __', opts:[64,60,56,72], a:60, why:'Differences grow: \u22124, \u22128, \u221212, \u221216.'},
+    {q:'1, 1, 2, 3, 5, 8, __', opts:[11,12,13,21], a:13, why:'Fibonacci: each term is the sum of the two before.'},
+    {q:'3, 6, 11, 18, 27, __', opts:[33,36,38,40], a:38, why:'Differences: +3, +5, +7, +9, +11.'},
+    {q:'2, 6, 12, 20, 30, __', opts:[36,40,42,48], a:42, why:'n\u00D7(n+1): 1\u00D72, 2\u00D73, 3\u00D74 \u2026 6\u00D77 = 42.'},
+    {q:'4, 9, 19, 39, 79, __', opts:[119,139,159,163], a:159, why:'\u00D72 then +1 each step.'},
+    {q:'A, C, F, J, O, __', opts:['T','U','V','S'], a:'U', why:'Letter gaps grow: +2, +3, +4, +5, +6.'},
+    {q:'1, 4, 27, 256, __', opts:[1024,625,3125,5120], a:3125, why:'n\u207F: 1\u00B9, 2\u00B2, 3\u00B3, 4\u2074, 5\u2075 = 3125.'}
+  ];
+  /* Verbal Precision word bank — 60 items. Each run draws 10 (5 synonym / 5 antonym),
+     excluding the previous run's headwords, with answer positions shuffled.
+     a = correct option; d = distractors. */
+  var VERBAL_BANK = [
+    /* ---- synonyms ---- */
+    {t:'syn', h:'CANDID',      a:'Frank',        d:['Polite','Secretive','Rude']},
+    {t:'syn', h:'METICULOUS',  a:'Thorough',     d:['Careless','Hasty','Gregarious']},
+    {t:'syn', h:'OBSOLETE',    a:'Outdated',     d:['Current','Complex','Scarce']},
+    {t:'syn', h:'ELOQUENT',    a:'Articulate',   d:['Brief','Loud','Nervous']},
+    {t:'syn', h:'FRUGAL',      a:'Thrifty',      d:['Generous','Wasteful','Wealthy']},
+    {t:'syn', h:'TENACIOUS',   a:'Persistent',   d:['Timid','Careless','Forgetful']},
+    {t:'syn', h:'LUCID',       a:'Clear',        d:['Confusing','Dim','Lengthy']},
+    {t:'syn', h:'SPARSE',      a:'Scanty',       d:['Abundant','Dense','Costly']},
+    {t:'syn', h:'VENERABLE',   a:'Respected',    d:['Youthful','Fragile','Unknown']},
+    {t:'syn', h:'ARDUOUS',     a:'Demanding',    d:['Effortless','Pleasant','Brief']},
+    {t:'syn', h:'BENEVOLENT',  a:'Kindly',       d:['Cruel','Wealthy','Anxious']},
+    {t:'syn', h:'COGENT',      a:'Convincing',   d:['Rambling','Weak','Humorous']},
+    {t:'syn', h:'DILIGENT',    a:'Hardworking',  d:['Lazy','Clever','Anxious']},
+    {t:'syn', h:'EBULLIENT',   a:'Exuberant',    d:['Gloomy','Calm','Tired']},
+    {t:'syn', h:'FORTUITOUS',  a:'Accidental',   d:['Deliberate','Unlucky','Costly']},
+    {t:'syn', h:'GARRULOUS',   a:'Talkative',    d:['Silent','Rude','Clever']},
+    {t:'syn', h:'HASTY',       a:'Rushed',       d:['Careful','Slow','Deliberate']},
+    {t:'syn', h:'IMPERIOUS',   a:'Domineering',  d:['Humble','Shy','Generous']},
+    {t:'syn', h:'LACONIC',     a:'Terse',        d:['Wordy','Cheerful','Confused']},
+    {t:'syn', h:'MALLEABLE',   a:'Pliable',      d:['Rigid','Brittle','Heavy']},
+    {t:'syn', h:'NEFARIOUS',   a:'Wicked',       d:['Saintly','Careless','Famous']},
+    {t:'syn', h:'MURKY',       a:'Unclear',      d:['Transparent','Obvious','Bright']},
+    {t:'syn', h:'PERENNIAL',   a:'Everlasting',  d:['Brief','Temporary','Rare']},
+    {t:'syn', h:'QUIXOTIC',    a:'Idealistic',   d:['Cynical','Practical','Timid']},
+    {t:'syn', h:'RETICENT',    a:'Reserved',     d:['Outgoing','Angry','Hasty']},
+    {t:'syn', h:'ASTUTE',      a:'Shrewd',       d:['Foolish','Naive','Slow']},
+    {t:'syn', h:'TACITURN',    a:'Uncommunicative', d:['Chatty','Cheerful','Hostile']},
+    {t:'syn', h:'UBIQUITOUS',  a:'Ever-present', d:['Rare','Hidden','Costly']},
+    {t:'syn', h:'VERACIOUS',   a:'Truthful',     d:['Deceptive','Talkative','Brave']},
+    {t:'syn', h:'ZEALOUS',     a:'Fervent',      d:['Indifferent','Cautious','Weary']},
+    /* ---- antonyms ---- */
+    {t:'ant', h:'SCARCE',      a:'Abundant',     d:['Rare','Hidden','Costly']},
+    {t:'ant', h:'RELUCTANT',   a:'Eager',        d:['Slow','Quiet','Angry']},
+    {t:'ant', h:'PRUDENT',     a:'Reckless',     d:['Wise','Careful','Patient']},
+    {t:'ant', h:'BENIGN',      a:'Harmful',      d:['Gentle','Calm','Tender']},
+    {t:'ant', h:'OPAQUE',      a:'Transparent',  d:['Dark','Thick','Clouded']},
+    {t:'ant', h:'FRANK',       a:'Evasive',      d:['Blunt','Honest','Direct']},
+    {t:'ant', h:'TENABLE',     a:'Indefensible', d:['Sound','Reasonable','Firm']},
+    {t:'ant', h:'PRODIGAL',    a:'Thrifty',      d:['Wasteful','Lavish','Careless']},
+    {t:'ant', h:'STOIC',       a:'Expressive',   d:['Unmoved','Patient','Reserved']},
+    {t:'ant', h:'REVERED',     a:'Despised',     d:['Esteemed','Honoured','Admired']},
+    {t:'ant', h:'TERSE',       a:'Wordy',        d:['Brief','Concise','Curt']},
+    {t:'ant', h:'PLAUSIBLE',   a:'Implausible',  d:['Credible','Likely','Reasonable']},
+    {t:'ant', h:'HOMOGENEOUS', a:'Varied',       d:['Uniform','Identical','Consistent']},
+    {t:'ant', h:'CIRCUMSPECT', a:'Rash',         d:['Cautious','Wary','Careful']},
+    {t:'ant', h:'ALACRITY',    a:'Reluctance',   d:['Eagerness','Enthusiasm','Readiness']},
+    {t:'ant', h:'EPHEMERAL',   a:'Permanent',    d:['Fleeting','Transient','Brief']},
+    {t:'ant', h:'MAGNANIMOUS', a:'Petty',        d:['Generous','Noble','Forgiving']},
+    {t:'ant', h:'SAGACIOUS',   a:'Foolish',      d:['Wise','Astute','Perceptive']},
+    {t:'ant', h:'TACIT',       a:'Spoken',       d:['Unspoken','Implied','Understood']},
+    {t:'ant', h:'VERITY',      a:'Falsehood',    d:['Truth','Fact','Accuracy']},
+    {t:'ant', h:'ABATE',       a:'Intensify',    d:['Lessen','Subside','Ease']},
+    {t:'ant', h:'CONCEAL',     a:'Reveal',       d:['Hide','Mask','Bury']},
+    {t:'ant', h:'DELECTABLE',  a:'Repulsive',    d:['Delicious','Appetising','Pleasant']},
+    {t:'ant', h:'EXPEDITE',    a:'Delay',        d:['Hurry','Speed','Facilitate']},
+    {t:'ant', h:'GREGARIOUS',  a:'Unsociable',   d:['Sociable','Outgoing','Friendly']},
+    {t:'ant', h:'IMPECCABLE',  a:'Faulty',       d:['Flawless','Perfect','Spotless']},
+    {t:'ant', h:'NOTORIOUS',   a:'Obscure',      d:['Infamous','Well-known','Famed']},
+    {t:'ant', h:'PERSPICACITY',a:'Obtuseness',   d:['Insight','Acumen','Shrewdness']},
+    {t:'ant', h:'SPENDTHRIFT', a:'Miser',        d:['Wastrel','Squanderer','Profligate']},
+    {t:'ant', h:'VAPID',       a:'Lively',       d:['Dull','Bland','Lifeless']}
+  ];
+  var VERBAL_PER_RUN = 10;   /* 5 synonym + 5 antonym */
+  var VERBAL_DECK_KEY = 'verbalDeck';
+  var VERBAL_LAST_KEY = 'verbalLast';
+
+  function poolOf(t){ return VERBAL_BANK.filter(function(x){ return x.t===t; }); }
+
+  /* Shuffle heads so that the LAST `half` entries — the ones dealt first, since
+     the deck is consumed with pop() — contain none of `avoid` (the words used
+     in the previous run). Deterministic fallback puts avoided words at the front
+     (dealt last), so the constraint always holds. */
+  function dealFresh(heads, avoid, half){
+    var s = shuffle(heads);
+    for(var attempt=0; attempt<24; attempt++){
+      var clash = false;
+      for(var i=s.length-half; i<s.length; i++){ if(avoid.indexOf(s[i]) >= 0){ clash = true; break; } }
+      if(!clash) return s;
+      s = shuffle(heads);
+    }
+    var collided = s.filter(function(h){ return avoid.indexOf(h) >= 0; });
+    var safe     = s.filter(function(h){ return avoid.indexOf(h) === -1; });
+    return collided.concat(safe);
+  }
+
+  /* Rotating deck: within each type, words are dealt from a shuffled deck and the
+     deck is only reshuffled once exhausted — so every word in the bank is shown
+     exactly once per pass before any repeats, and no word repeats back-to-back. */
+  function deckFor(t, half){
+    var d = S.brain[VERBAL_DECK_KEY];
+    if(!d || typeof d !== 'object'){ d = S.brain[VERBAL_DECK_KEY] = {}; }
+    var last = (S.brain[VERBAL_LAST_KEY] && S.brain[VERBAL_LAST_KEY][t]) || [];
+    if(!Array.isArray(d[t]) || d[t].length === 0){
+      d[t] = dealFresh(poolOf(t).map(function(x){ return x.h; }), last, half);
+    }
+    return d[t];
+  }
+
+  function drawVerbal(){
+    var half = VERBAL_PER_RUN/2, set = [], used = {}, last = {};
+    ['syn','ant'].forEach(function(t){
+      var deck = deckFor(t, half);
+      var byHead = {};
+      poolOf(t).forEach(function(x){ byHead[x.h] = x; });
+      var drawn = [];
+      for(var i=0; i<half; i++){
+        var h = deck.pop();
+        /* Unreachable: headwords are globally unique across the bank and the deck
+           holds each headword once, so a pop can never collide with `used` or run
+           dry mid-run. Bounded retry, then a forced pick — never an open loop. */
+        for(var guard=0; (h === undefined || used[h]) && guard < pool.length*2; guard++){
+          if(h !== undefined) deck.push(h);
+          S.brain[VERBAL_DECK_KEY][t] = deckFor(t, half);
+          deck = S.brain[VERBAL_DECK_KEY][t];
+          h = deck.pop();
+        }
+        if(h === undefined || used[h]){
+          var avail = poolOf(t).filter(function(x){ return !used[x.h]; });
+          if(!avail.length) continue;
+          h = avail[0].h;
+        }
+        used[h] = true;
+        drawn.push(h);
+        set.push(byHead[h]);
+      }
+      last[t] = drawn;
+    });
+    S.brain[VERBAL_LAST_KEY] = last;
+    set = shuffle(set);
+    return set.map(function(x){
+      var opts = shuffle([x.a].concat(x.d));
+      return {
+        q: (x.t==='syn' ? 'Synonym of ' : 'Antonym of ') + x.h,
+        head: x.h,
+        opts: opts,
+        a: opts.indexOf(x.a),
+        ans: x.a
+      };
+    });
+  }
+  var VERBAL_POOL_SIZE = VERBAL_BANK.length;
+  var VERBAL_PASS_RUNS = Math.floor(VERBAL_BANK.length / VERBAL_PER_RUN); /* runs before the bank repeats */
+  var STROOP_COLORS = [
+    {name:'RED', hex:'#e03131'},
+    {name:'BLUE', hex:'#1c7ed6'},
+    {name:'GREEN', hex:'#2f9e44'},
+    {name:'YELLOW', hex:'#d99400'}
+  ];
+
+  /* ==================== STATE ==================== */
+  var STORAGE_KEY = 'mindbaseline.v1';
+  var memoryOnly = false;
+  var S = loadState() || defaultState();
+
+  function defaultState(){
+    return {
+      consent:false,
+      mind:{ phq:null, gad:null, who:null, ipip:null },
+      brain:{ ctx:{sleep:'', distract:''}, digit:null, rt:null, stroop:null, reason:null, math:null, verbal:null, attempts:{} },
+      created:Date.now()
+    };
+  }
+  function loadState(){
+    try{
+      var raw = window.localStorage.getItem(STORAGE_KEY);
+      if(!raw) return null;
+      var s = JSON.parse(raw);
+      return (s && typeof s==='object' && s.mind && s.brain) ? s : null;
+    }catch(e){ memoryOnly=true; return null; }
+  }
+  function save(){
+    try{ window.localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); }
+    catch(e){ memoryOnly=true; }
+  }
+
+  /* ==================== HELPERS ==================== */
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  var toastTimer=null;
+  function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(function(){t.classList.remove('show');},3600); }
+  function sum(a){ var s=0; for(var i=0;i<a.length;i++) s+=a[i]; return s; }
+  function median(a){ if(!a.length) return 0; var b=a.slice().sort(function(x,y){return x-y;}); var m=Math.floor(b.length/2); return b.length%2? b[m] : (b[m-1]+b[m])/2; }
+  function mean(a){ return a.length? sum(a)/a.length : 0; }
+  function rnd(lo,hi){ return lo + Math.random()*(hi-lo); }
+  function rndInt(lo,hi){ return Math.floor(rnd(lo,hi+1)); }
+  function shuffle(a){
+    a = a.slice();
+    for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+    return a;
+  }
+  function fmtDate(ts){ var d=new Date(ts); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
+
+  var taskTimers = [];
+  function later(fn, ms){ var id = setTimeout(fn, ms); taskTimers.push(id); return id; }
+  function clearTaskTimers(){ taskTimers.forEach(clearTimeout); taskTimers=[]; }
+  var taskIntervals = [];
+  function every(fn, ms){ var id = setInterval(fn, ms); taskIntervals.push(id); return id; }
+  function clearTaskIntervals(){ taskIntervals.forEach(clearInterval); taskIntervals=[]; }
+  function cleanupTasks(){ clearTaskTimers(); clearTaskIntervals(); }
+
+  function bumpAttempt(key){
+    S.brain.attempts[key] = (S.brain.attempts[key]||0) + 1;
+    save();
+    return S.brain.attempts[key];
+  }
+
+  /* ==================== TABS ==================== */
+  var currentView='start';
+  function showView(v){
+    if(currentView===v) return;
+    cleanupTasks();
+    currentView=v;
+    ['start','mind','brain','report'].forEach(function(name){
+      $('view-'+name).hidden = (name!==v);
+      $('tab-'+name).setAttribute('aria-selected', name===v);
+    });
+    if(v==='mind') renderMindStep(mindStep);
+    if(v==='brain') renderBrainMenu();
+    if(v==='report') renderReport();
+    if(v==='start') renderStartStatus();
+    window.scrollTo({top:0});
+  }
+
+  /* ==================== START ==================== */
+  function renderStartStatus(){
+    var done=[];
+    if(S.mind.phq) done.push('PHQ-9');
+    if(S.mind.gad) done.push('GAD-7');
+    if(S.mind.who) done.push('WHO-5');
+    if(S.mind.ipip) done.push('Mini-IPIP');
+    var bt=[];
+    ['digit','rt','stroop','reason','math','verbal'].forEach(function(k){ if(S.brain[k]) bt.push(k); });
+    $('start-status').innerHTML =
+      (done.length? 'Mind: '+done.length+'/4 done. ':'Mind: not started. ') +
+      (bt.length? 'Brain: '+bt.length+'/6 tasks done.' : 'Brain: not started.') +
+      (memoryOnly? ' <b>(memory-only mode \u2014 open in a browser to persist)</b>':'');
+  }
+  $('consent').checked = !!S.consent;
+  function syncConsent(){
+    S.consent = $('consent').checked;
+    $('btn-start-mind').disabled = !S.consent;
+    $('btn-start-brain').disabled = !S.consent;
+    save();
+  }
+  $('consent').addEventListener('change', syncConsent);
+  syncConsent();
+  $('btn-start-mind').addEventListener('click', function(){ mindStep='phq'; showView('mind'); });
+  $('btn-start-brain').addEventListener('click', function(){ showView('brain'); });
+
+  /* ==================== MIND MODULE ==================== */
+  var MIND_ORDER = ['phq','gad','who','ipip','res'];
+  var MIND_LABEL = {phq:'PHQ-9',gad:'GAD-7',who:'WHO-5',ipip:'Mini-IPIP',res:'Results'};
+  var mindStep = S.mind.phq ? 'res' : 'phq';
+
+  function renderMindSteps(){
+    var h='';
+    MIND_ORDER.forEach(function(k){
+      var cls='step';
+      var doneKey = (k==='res') ? S.mind.phq : S.mind[k];
+      if(k===mindStep) cls+=' now';
+      else if(doneKey) cls+=' done';
+      h+='<span class="'+cls+'">'+(doneKey&&k!==mindStep?'\u2713 ':'')+MIND_LABEL[k]+'</span>';
+    });
+    $('mind-steps').innerHTML=h;
+  }
+
+  function renderMindStep(step){
+    renderMindSteps();
+    var b=$('mind-body');
+    cleanupTasks();
+    if(step==='phq') renderScale(b,'phq','PHQ-9 \u00B7 Depression screener','Over the last 2 weeks, how often have you been bothered by any of the following problems?',PHQ_ITEMS,SCALE_0_3);
+    else if(step==='gad') renderScale(b,'gad','GAD-7 \u00B7 Anxiety screener','Over the last 2 weeks, how often have you been bothered by the following problems?',GAD_ITEMS,SCALE_0_3);
+    else if(step==='who') renderScale(b,'who','WHO-5 \u00B7 Wellbeing index','Over the last 2 weeks\u2026 (higher is better here)',WHO_ITEMS,SCALE_WHO);
+    else if(step==='ipip') renderScale(b,'ipip','Mini-IPIP \u00B7 Big Five personality','How accurately does each statement describe you <b>in general</b> (not this week)?',IPIP_ITEMS.map(function(x){return x.t;}),SCALE_IPIP);
+    else renderMindResults();
+  }
+
+  function renderScale(container, key, title, head, items, scale){
+    var h = '<section class="card"><p class="kicker">Mind check</p><h2>'+esc(title)+'</h2>'+
+            '<p class="qhead">'+head+'</p><form id="scaleform">';
+    items.forEach(function(it,i){
+      h+='<div class="qrow"><div class="qtext">'+(i+1)+'. '+esc(it)+'</div><div class="opts">';
+      scale.forEach(function(o,j){
+        h+='<label class="opt"><input type="radio" name="sq'+i+'" value="'+o.v+'"><span>'+esc(o.l)+'</span></label>';
+      });
+      h+='</div></div>';
+    });
+    h+='</form><div class="qfoot"><button class="btn primary" id="scale-submit">Score it \u2192</button>'+
+       '<span class="qcount" id="scale-count">0 / '+items.length+' answered</span>'+
+       '<span class="spacer"></span>';
+    if(S.mind[key]) h+='<span class="qcount">(a previous result exists \u2014 submitting overwrites it)</span>';
+    h+='</div>'+
+       '<p class="disclaimer">Answer as the last two weeks actually were, not as you wish they were. A screener you lie to is a mirror facing the wall.</p></section>';
+    container.innerHTML = h;
+
+    var n = items.length, answered = 0;
+    $('scaleform').addEventListener('change', function(e){
+      if(e.target && e.target.name && e.target.name.indexOf('sq')===0){
+        answered = 0;
+        for(var i=0;i<n;i++){ if(container.querySelector('input[name="sq'+i+'"]:checked')) answered++; }
+        $('scale-count').textContent = answered + ' / ' + n + ' answered';
+      }
+    });
+    $('scale-submit').addEventListener('click', function(){
+      var vals=[];
+      for(var i=0;i<n;i++){
+        var c = container.querySelector('input[name="sq'+i+'"]:checked');
+        if(!c){ toast('Question '+(i+1)+' is unanswered \u2014 a valid score needs all '+n+'.'); c=container.querySelector('input[name="sq'+i+'"]'); if(c) c.focus(); return; }
+        vals.push(parseInt(c.value,10));
+      }
+      submitScale(key, vals);
+    });
+  }
+
+  function submitScale(key, vals){
+    if(key==='phq'){
+      S.mind.phq = {score:sum(vals), q9:vals[8], answers:vals, ts:Date.now()};
+      mindStep='gad';
+    } else if(key==='gad'){
+      S.mind.gad = {score:sum(vals), answers:vals, ts:Date.now()};
+      mindStep='who';
+    } else if(key==='who'){
+      var raw=sum(vals);
+      S.mind.who = {raw:raw, pct:raw*4, answers:vals, ts:Date.now()};
+      mindStep='ipip';
+    } else if(key==='ipip'){
+      var sums={E:0,A:0,C:0,N:0,O:0};
+      IPIP_ITEMS.forEach(function(it,i){ sums[it.f] += it.r ? (6-vals[i]) : vals[i]; });
+      S.mind.ipip = {sums:sums, answers:vals, ts:Date.now()};
+      mindStep='res';
+    }
+    save();
+    renderMindStep(mindStep);
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  /* ---- interpretation tables ---- */
+  function phqBand(s){
+    if(s<=4) return {cls:'min',name:'Minimal',text:'No clinically significant depressive symptoms in these two weeks. Straight up: nothing to treat right now \u2014 keep the basics (sleep, movement, people) funded.'};
+    if(s<=9) return {cls:'mild',name:'Mild',text:'Mild symptoms \u2014 below the usual treatment threshold of 10. Truthfully: watch it. If this lingers for weeks or keeps returning, protect sleep, activity and connection, and mention it to a doctor. Mild is real; it is also the cheapest point to act.'};
+    if(s<=14) return {cls:'mod',name:'Moderate',text:'Moderate symptoms. 10 is the cut-off where clinicians typically begin treatment discussions (therapy and/or medication). Direct advice: book an appointment with a doctor or therapist. Not next year \u2014 this month.'};
+    if(s<=19) return {cls:'sev',name:'Moderately severe',text:'Moderately severe symptoms. Professional assessment is indicated at this level \u2014 this is not a wait-and-see band. The truthful good news: symptoms this size respond well to treatment.'};
+    return {cls:'sev',name:'Severe',text:'Severe symptoms. Please contact a professional promptly \u2014 this is the band where treatment matters most and works. Carrying this alone is unnecessary suffering.'};
+  }
+  function gadBand(s){
+    if(s<=4) return {cls:'min',name:'Minimal',text:'Minimal anxiety symptoms in these two weeks. Nothing flagged.'};
+    if(s<=9) return {cls:'mild',name:'Mild',text:'Mild anxiety. Common and manageable \u2014 but if worry is taxing your sleep or eating into your days, early support (therapy skills, exercise, cut caffeine) pays compounding interest.'};
+    if(s<=14) return {cls:'mod',name:'Moderate',text:'Moderate anxiety \u2014 the threshold where clinicians usually consider treatment. Straight answer: worth a professional conversation. Anxiety disorders are among the most treatable conditions there are.'};
+    return {cls:'sev',name:'Severe',text:'Severe anxiety symptoms. Please seek professional assessment. Truthfully: this level rarely resolves by white-knuckling, and it responds well to proper treatment.'};
+  }
+  function whoBand(pct){
+    if(pct>50) return {cls:'min',name:'Good wellbeing',text:'Wellbeing is in the healthy range (above 50%). Keep doing whatever is working.'};
+    if(pct>28) return {cls:'mod',name:'Reduced wellbeing',text:'Below 50% \u2014 the internationally used cut-off for poor wellbeing, and an indication for further assessment. Read alongside your other scores: if they are elevated too, this is a pattern, not noise. Talk to a professional.'};
+    return {cls:'sev',name:'Poor wellbeing',text:'At or below 28% \u2014 the screening cut-off associated with likely depression. This is a clear, validated signal: please talk to a clinician. This score is exactly what the WHO-5 was built to catch.'};
+  }
+  function safetyNeeded(){ return S.mind.phq && S.mind.phq.q9 >= 1; }
+  function safetyHtml(){
+    return '<div class="safety"><h3>Read this first \u2014 you flagged item 9</h3>'+
+      '<p>You indicated that, in the last two weeks, you have had <b>thoughts that you would be better off dead, or of hurting yourself</b>. A truthful report does not glide past that. It matters more than any other number on this page.</p>'+
+      '<p><b>Please reach out today</b> \u2014 not when it gets worse, today:</p>'+
+      '<ul>'+
+      '<li>In immediate danger? Call your local emergency number now.</li>'+
+      '<li>Anywhere in the world: <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a> \u2014 free, confidential helplines in 130+ countries.</li>'+
+      '<li>US / Canada: call or text <b>988</b> &middot; UK / Ireland: Samaritans <b>116 123</b> &middot; Australia: Lifeline <b>13 11 14</b> &middot; India: Tele-MANAS <b>14416</b>.</li>'+
+      '</ul>'+
+      '<p>Telling one real person out loud is the single most effective next step. You just practiced honesty on this page \u2014 spend some of it on someone who can sit with you.</p></div>';
+  }
+
+  var FACTOR_META = {
+    E:{name:'Extraversion', low:'Solitude recharges you; big social scenes cost energy \u2014 that\u2019s wiring, not a character flaw.', mid:'Social when it counts, content alone too \u2014 you have a flexible dial, not a fixed need.', high:'You draw energy from people and take up space in rooms without much effort.'},
+    A:{name:'Agreeableness', low:'You put truth and task before feelings \u2014 effective, as long as delivery doesn\u2019t torch the message.', mid:'Warm when it\u2019s warranted, firm when it\u2019s needed.', high:'You feel others strongly and default to cooperation \u2014 guard against paying for peace with yourself.'},
+    C:{name:'Conscientiousness', low:'You improvise and defer structure. Fine until deadlines stack \u2014 then systems beat willpower.', mid:'Organized enough, flexible when it pays.', high:'You finish what you start and like a place for everything \u2014 the single best predictor of getting things done.'},
+    N:{name:'Neuroticism (emotional reactivity)', low:'Even-keeled under pressure \u2014 just make sure others\u2019 alarms don\u2019t get waved off as noise.', mid:'Steady most days, moved when it matters.', high:'Your emotions arrive fast and hit hard. That\u2019s real, it\u2019s common, and it\u2019s trainable \u2014 it is not a verdict.'},
+    O:{name:'Intellect / Imagination (Openness)', low:'Concrete and grounded \u2014 you trust the real and proven over the speculative.', mid:'Practical, with curiosity in doses.', high:'Abstract, curious, idea-fluent \u2014 novelty is your native language; routine is the tax you pay.'}
+  };
+  function factorLevel(avg){ return avg<2.3? 'low' : (avg>3.7? 'high':'mid'); }
+  function levelWord(l){ return l==='low'? 'Low' : (l==='high'? 'High':'Middle'); }
+
+  function renderMindResults(){
+    var b=$('mind-body');
+    var h='';
+    if(safetyNeeded()) h+=safetyHtml();
+
+    h+='<section class="card"><p class="kicker">Mind check \u00B7 results</p><h2>Straight results</h2>';
+
+    if(S.mind.phq){
+      var pb=phqBand(S.mind.phq.score);
+      h+='<div class="scoregrid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">'+
+         '<div class="scorebox"><div class="lab">PHQ-9 \u00B7 depression</div><div class="big">'+S.mind.phq.score+'<span style="font-size:16px;color:var(--soft)">/27</span></div>'+
+         '<span class="band '+pb.cls+'">'+pb.name+'</span><div class="verdict">'+esc(pb.text)+'</div></div>';
+      if(S.mind.gad){
+        var gb=gadBand(S.mind.gad.score);
+        h+='<div class="scorebox"><div class="lab">GAD-7 \u00B7 anxiety</div><div class="big">'+S.mind.gad.score+'<span style="font-size:16px;color:var(--soft)">/21</span></div>'+
+           '<span class="band '+gb.cls+'">'+gb.name+'</span><div class="verdict">'+esc(gb.text)+'</div></div>';
+      }
+      if(S.mind.who){
+        var wb=whoBand(S.mind.who.pct);
+        h+='<div class="scorebox"><div class="lab">WHO-5 \u00B7 wellbeing</div><div class="big">'+S.mind.who.pct+'<span style="font-size:16px;color:var(--soft)">%</span></div>'+
+           '<div class="qcount">raw '+S.mind.who.raw+'/25</div>'+
+           '<span class="band '+wb.cls+'">'+wb.name+'</span><div class="verdict">'+esc(wb.text)+'</div></div>';
+      }
+      h+='</div>';
+    } else {
+      h+='<p class="mut">No questionnaires completed yet.</p>';
+    }
+
+    /* personality */
+    if(S.mind.ipip){
+      h+='<h3 style="margin-top:22px">Big Five personality (Mini-IPIP)</h3>'+
+         '<p class="mut" style="font-size:13px">Each factor sums 4 items to a score of 4\u201320 (shown as average per item, 1\u20135). Traits are dials, not verdicts \u2014 no pole is \u201Cbad\u201D, and a 20-item short form is a sketch, not a portrait.</p>';
+      ['E','A','C','N','O'].forEach(function(f){
+        var s=S.mind.ipip.sums[f], avg=s/4, lvl=factorLevel(avg), m=FACTOR_META[f];
+        h+='<div class="frow"><span class="fl">'+esc(m.name)+'</span>'+
+           '<span class="fb"><i style="width:'+Math.round((s-4)/16*100)+'%"></i></span>'+
+           '<span class="fv">'+s+'/20</span></div>'+
+           '<p class="fdesc"><b>'+levelWord(lvl)+'</b> \u2014 '+esc(m[lvl])+'</p>';
+      });
+      var avgs=['E','A','C','N','O'].map(function(f){return {f:f,a:S.mind.ipip.sums[f]/4};});
+      avgs.sort(function(x,y){return y.a-x.a;});
+      h+='<div class="plain"><b>The blunt version:</b> your strongest factor is '+esc(FACTOR_META[avgs[0].f].name)+' ('+avgs[0].a.toFixed(2)+'/5), your weakest is '+esc(FACTOR_META[avgs[4].f].name)+' ('+avgs[4].a.toFixed(2)+'/5). Personality predicts tendencies, not fate \u2014 and 20 questions is a rough instrument. Treat this as a mirror held at an angle, not an X-ray.</div>';
+    }
+
+    /* honesty + nav */
+    h+='<div class="honest"><b>What this can\u2019t tell you.</b> These are screening instruments, not diagnoses. A score measures the last two weeks as you reported them \u2014 it cannot see context, history, or biology. Only a qualified professional can diagnose, and a high score is a prompt to talk to one, not a label. A low score with real suffering is also a prompt to talk to one \u2014 you know yourself better than any questionnaire does.</div>';
+    h+='<div class="row" style="margin-top:14px">'+
+       '<button class="btn ghost" id="mk-phq">'+(S.mind.phq?'Retake PHQ-9':'Take PHQ-9')+'</button>'+
+       '<button class="btn ghost" id="mk-gad">'+(S.mind.gad?'Retake GAD-7':'Take GAD-7')+'</button>'+
+       '<button class="btn ghost" id="mk-who">'+(S.mind.who?'Retake WHO-5':'Take WHO-5')+'</button>'+
+       '<button class="btn ghost" id="mk-ipip">'+(S.mind.ipip?'Retake Mini-IPIP':'Take Mini-IPIP')+'</button>'+
+       '<span class="spacer"></span><button class="btn primary" id="mk-report">See full report \u2192</button></div>';
+    h+='</section>';
+    b.innerHTML=h;
+    $('mk-phq').addEventListener('click',function(){mindStep='phq';renderMindStep(mindStep);});
+    $('mk-gad').addEventListener('click',function(){mindStep='gad';renderMindStep(mindStep);});
+    $('mk-who').addEventListener('click',function(){mindStep='who';renderMindStep(mindStep);});
+    $('mk-ipip').addEventListener('click',function(){mindStep='ipip';renderMindStep(mindStep);});
+    $('mk-report').addEventListener('click',function(){showView('report');});
+  }
+
+  /* ==================== BRAIN MODULE ==================== */
+  var TASKS = [
+    {k:'digit',  name:'Digit Span',        desc:'Working memory \u2014 repeat sequences forward & backward', min:'~2 min'},
+    {k:'rt',     name:'Reaction Time',     desc:'Processing speed \u2014 5 trials, click on green',           min:'~1 min'},
+    {k:'stroop', name:'Stroop Test',       desc:'Attention control \u2014 name the INK color, not the word', min:'~2 min'},
+    {k:'reason', name:'Number Series',     desc:'Fluid reasoning \u2014 8 patterns, easy to brutal',        min:'~3 min'},
+    {k:'math',   name:'Mental Math Sprint',desc:'Numeric fluency \u2014 60 seconds, as many as you can',    min:'~1 min'},
+    {k:'verbal', name:'Verbal Precision',  desc:'Crystallized knowledge \u2014 10 per run from a rotating 60-word deck',    min:'~2 min'}
+  ];
+
+  function brainDone(){ var n=0; TASKS.forEach(function(t){ if(S.brain[t.k]) n++; }); return n; }
+
+  function renderBrainMenu(){
+    var b=$('brain-body');
+    var h='<section class="card"><p class="kicker">Brain check</p><h2>Six tasks. Raw numbers. No IQ theater.</h2>'+
+      '<p class="mut">Before you start: quiet room, phone away, no music with words. Do them sober and reasonably rested \u2014 otherwise you\u2019re measuring your Tuesday, not your brain. First attempts are the honest ones; repeats inflate scores through practice.</p>'+
+      '<div class="ctxrow"><div class="field"><label for="ctx-sleep">Sleep last night</label><select id="ctx-sleep">'+
+      ['','Under 5 hours','5\u20137 hours','7+ hours'].map(function(o){return '<option'+(S.brain.ctx.sleep===o?' selected':'')+'>'+o+'</option>';}).join('')+
+      '</select></div><div class="field"><label for="ctx-distract">Right now, I am\u2026</label><select id="ctx-distract">'+
+      ['','Quiet and focused','Somewhat distracted','Very distracted'].map(function(o){return '<option'+(S.brain.ctx.distract===o?' selected':'')+'>'+o+'</option>';}).join('')+
+      '</select></div></div>'+
+      '<p class="mut" style="font-size:12.5px;margin-top:8px">These two answers get printed on your report \u2014 context is part of the truth.</p></section>';
+
+    h+='<div class="taskgrid">';
+    TASKS.forEach(function(t){
+      var r=S.brain[t.k];
+      h+='<button class="taskcard" data-task="'+t.k+'">'+
+         '<div class="tt">'+esc(t.name)+'</div>'+
+         '<div class="td">'+esc(t.desc)+' \u00B7 '+t.min+'</div>'+
+         '<div class="ts '+(r?'done':'todo')+'">'+(r? '\u2713 '+esc(shortScore(t.k)) : 'not done yet')+'</div></button>';
+    });
+    h+='</div>';
+
+    h+='<section class="card" style="margin-top:16px"><div class="row">'+
+       '<span class="qcount">'+brainDone()+' / 6 tasks done</span><span class="spacer"></span>'+
+       '<button class="btn primary" id="btn-brain-report" '+(brainDone()?'':'disabled')+'>See brain results &amp; report \u2192</button></div></section>';
+
+    b.innerHTML=h;
+    Array.prototype.forEach.call(b.querySelectorAll('.taskcard'), function(btn){
+      btn.addEventListener('click', function(){ startTask(btn.getAttribute('data-task')); });
+    });
+    $('ctx-sleep').addEventListener('change',function(){S.brain.ctx.sleep=this.value;save();});
+    $('ctx-distract').addEventListener('change',function(){S.brain.ctx.distract=this.value;save();});
+    $('btn-brain-report').addEventListener('click',function(){showView('report');});
+  }
+
+  function shortScore(k){
+    var r=S.brain[k];
+    if(!r) return '';
+    if(k==='digit') return 'span '+r.fwd+' fwd / '+r.bwd+' back';
+    if(k==='rt') return r.median+' ms median';
+    if(k==='stroop') return Math.round(r.acc*100)+'% acc, +'+r.interference+' ms';
+    if(k==='reason') return r.correct+'/'+REASON_ITEMS.length;
+    if(k==='math') return r.correct+' correct';
+    if(k==='verbal') return r.correct+'/'+(r.total||VERBAL_PER_RUN);
+    return '';
+  }
+
+  function startTask(k){
+    cleanupTasks();
+    if(k==='digit') taskDigit();
+    else if(k==='rt') taskRT();
+    else if(k==='stroop') taskStroop();
+    else if(k==='reason') taskMCQ('reason','Number Series \u00B7 fluid reasoning',REASON_ITEMS,true);
+    else if(k==='math') taskMath();
+    else if(k==='verbal') taskMCQ('verbal','Verbal Precision \u00B7 crystallized knowledge',drawVerbal(),false);
+  }
+
+  function taskShell(title, meta, bodyHtml){
+    var b=$('brain-body');
+    b.innerHTML = '<section class="card"><p class="kicker">'+esc(title)+'</p>'+
+      '<p class="qhead" style="margin-bottom:12px">'+meta+'</p>'+
+      '<div class="arena" id="arena">'+bodyHtml+'</div>'+
+      '<div class="row" style="margin-top:14px"><button class="btn ghost" id="btn-back-menu">\u2190 All tasks</button>'+
+      '<span class="spacer"></span><span class="qcount" id="task-note"></span></div></section>';
+    $('btn-back-menu').addEventListener('click', function(){ cleanupTasks(); renderBrainMenu(); });
+  }
+  function taskNote(msg){ var el=$('task-note'); if(el) el.textContent=msg; }
+
+  function resultPanel(key, title, rowsHtml, verdictText, note){
+    var b=$('brain-body');
+    b.innerHTML='<section class="card"><p class="kicker">'+esc(title)+' \u00B7 result</p>'+
+      rowsHtml+
+      '<div class="plain"><b>Straight verdict:</b> '+verdictText+'</div>'+
+      (note?'<div class="honest">'+note+'</div>':'')+
+      '<div class="row" style="margin-top:14px"><button class="btn ghost" id="btn-back-menu2">\u2190 All tasks</button>'+
+      '<span class="spacer"></span><button class="btn primary" id="btn-again">Run it again</button></div></section>';
+    $('btn-back-menu2').addEventListener('click', function(){ cleanupTasks(); renderBrainMenu(); });
+    $('btn-again').addEventListener('click', function(){ startTask(key); });
+  }
+
+  /* ---------- Task: Digit Span ---------- */
+  var ds;
+  function taskDigit(){
+    ds={phase:'fwd', level:3, fwd:null, bwd:null, seq:[], accepting:false, t:null};
+    taskShell('Digit Span \u00B7 working memory',
+      'Digits flash one at a time. Type them back \u2014 <b>forward</b> first, then <b>backward</b> (reversed). One life per level: the run ends at your first miss.',
+      '<div class="digit" id="ds-display">\u2014</div>'+
+      '<div id="ds-input-row" hidden><input class="mini-in" id="ds-input" inputmode="numeric" autocomplete="off" placeholder="type digits\u2026"></div>'+
+      '<div class="feedback" id="ds-fb"></div>'+
+      '<button class="btn primary" id="ds-btn" style="margin-top:12px">Start \u2192</button>');
+    $('ds-btn').addEventListener('click', dsButton);
+    $('ds-input').addEventListener('keydown', function(e){ if(e.key==='Enter' && ds.accepting) dsSubmit(); });
+  }
+  function dsButton(){
+    var btn=$('ds-btn');
+    if(btn.disabled) return;
+    btn.disabled=true;
+    $('ds-fb').textContent='';
+    playDigits();
+  }
+  function playDigits(){
+    var len=ds.level, seq=[];
+    for(var i=0;i<len;i++){ var d=rndInt(0,9); if(i>0 && d===seq[i-1]) d=(d+1+rndInt(0,8))%10; seq.push(d); }
+    ds.seq=seq; ds.accepting=false;
+    $('ds-input-row').hidden=true;
+    var disp=$('ds-display');
+    var i2=0;
+    function step(){
+      if(i2<seq.length){
+        disp.textContent=seq[i2];
+        i2++;
+        later(function(){ disp.textContent='\u00A0'; later(step,220); }, 780);
+      } else {
+        disp.textContent='\u2022'.repeat(Math.min(len,10));
+        $('ds-input-row').hidden=false;
+        var inp=$('ds-input');
+        inp.value=''; inp.disabled=false;
+        ds.accepting=true;
+        inp.focus();
+        taskNote((ds.phase==='fwd'?'Forward':'Backward')+' \u00B7 level '+len+(ds.phase==='bwd'?' (type reversed!)':''));
+      }
+    }
+    disp.textContent='\u2026';
+    later(step,500);
+  }
+  function dsSubmit(){
+    if(!ds.accepting) return;
+    ds.accepting=false;
+    var inp=$('ds-input');
+    var given=inp.value.replace(/\D/g,'');
+    var expect=ds.phase==='bwd'? ds.seq.slice().reverse().join('') : ds.seq.join('');
+    var ok = given===expect;
+    var fb=$('ds-fb');
+    if(ok){
+      fb.className='feedback fb-good'; fb.textContent='Correct \u2014 level '+ds.level+' cleared.';
+      ds.level++;
+      var cap = ds.phase==='fwd'? 10 : 9;
+      if(ds.level>cap){ endPhase(true); return; }
+    } else {
+      fb.className='feedback fb-bad';
+      fb.textContent='Missed. Sequence was '+ds.seq.join(' ')+' \u2192 answer: '+expect+'.';
+      endPhase(false); return;
+    }
+    inp.disabled=true;
+    var btn=$('ds-btn'); btn.disabled=false; btn.textContent='Next level \u2192';
+  }
+  function endPhase(cleared){
+    /* level was already incremented on a correct answer, so in BOTH outcomes
+       the highest cleared level is ds.level - 1 */
+    var span = ds.level - 1;
+    if(ds.phase==='fwd'){
+      ds.fwd=Math.max(span,2);
+      ds.phase='bwd'; ds.level=2;
+      $('ds-input-row').hidden=true;
+      $('ds-display').textContent='\u2014';
+      var fb=$('ds-fb'); fb.className='feedback'; fb.textContent='Forward span: '+ds.fwd+'. Now backward \u2014 same drill, reversed order.';
+      var btn=$('ds-btn'); btn.disabled=false; btn.textContent='Start backward \u2192';
+    } else {
+      ds.bwd=Math.max(span,1);
+      var att=bumpAttempt('digit');
+      S.brain.digit={fwd:ds.fwd,bwd:ds.bwd,ts:Date.now(),n:att};
+      save();
+      var fv = ds.fwd>=8?'above':(ds.fwd>=5?'within':'below');
+      var bv = ds.bwd>=6?'above':(ds.bwd>=3?'within':'below');
+      resultPanel('digit','Digit span',
+        '<div class="scoregrid"><div class="scorebox"><div class="lab">Forward span</div><div class="big">'+ds.fwd+'</div><span class="band '+(fv==='above'?'min':fv==='within'?'mild':'mod')+'">'+fv+' typical</span><div class="verdict">Typical adult range: 5\u20139 (average \u2248 7).</div></div>'+
+        '<div class="scorebox"><div class="lab">Backward span</div><div class="big">'+ds.bwd+'</div><span class="band '+(bv==='above'?'min':bv==='within'?'mild':'mod')+'">'+bv+' typical</span><div class="verdict">Typical adult range: 3\u20136 (average \u2248 5). Backward is harder \u2014 it manipulates, not just stores.</div></div></div>',
+        'Your forward span of '+ds.fwd+' is '+fv+' the typical adult range (5\u20139), and your backward span of '+ds.bwd+' is '+bv+' typical (3\u20136). Working memory is the workbench of intelligence \u2014 bigger bench, more held at once. It is also trainable, and one run is a noisy sample.',
+        (att>1?'<b>Attempt #'+att+':</b> repeats inflate span scores through practice \u2014 your first run was the honest baseline. ':'')+'Distraction, fatigue and typing fumbles all depress span. Context is part of the score.');
+    }
+  }
+
+  /* ---------- Task: Reaction Time ---------- */
+  var rt;
+  function taskRT(){
+    rt={state:'idle',times:[],t0:0,timer:null};
+    taskShell('Reaction time \u00B7 processing speed',
+      'Click the box to arm a trial. Wait for <b>green</b> \u2014 then click as fast as you can. Clicking early voids the trial. Five valid trials.',
+      '<div class="rtbox idle" id="rtbox" style="cursor:pointer">Click to begin trial 1 / 5</div>');
+    $('rtbox').addEventListener('click', rtClick);
+  }
+  function rtClick(){
+    var box=$('rtbox');
+    if(rt.state==='idle'){
+      rt.state='wait';
+      box.className='rtbox wait';
+      box.textContent='Wait for green\u2026';
+      rt.timer=later(function(){
+        rt.state='go';
+        rt.t0=(window.performance&&performance.now)?performance.now():Date.now();
+        box.className='rtbox go';
+        box.textContent='CLICK!';
+      }, rnd(1200,3500));
+    } else if(rt.state==='wait'){
+      clearTimeout(rt.timer);
+      rt.state='idle';
+      box.className='rtbox idle';
+      box.textContent='Too soon \u2014 that trial doesn\u2019t count. Click to retry ('+(rt.times.length+1)+' / 5)';
+    } else if(rt.state==='go'){
+      var now=(window.performance&&performance.now)?performance.now():Date.now();
+      var dt=Math.round(now-rt.t0);
+      rt.times.push(dt);
+      rt.state='idle';
+      if(rt.times.length>=5){ rtFinish(); }
+      else{
+        box.className='rtbox idle';
+        box.textContent=dt+' ms \u2014 click for trial '+(rt.times.length+1)+' / 5';
+      }
+    }
+  }
+  function rtFinish(){
+    var med=Math.round(median(rt.times)), avg=Math.round(mean(rt.times));
+    var att=bumpAttempt('rt');
+    S.brain.rt={median:med,mean:avg,times:rt.times,ts:Date.now(),n:att};
+    save();
+    var v = med<=250?'faster than':(med<=350?'within':'slower than');
+    var rows='<div class="scoregrid"><div class="scorebox"><div class="lab">Median RT</div><div class="big">'+med+'<span style="font-size:15px;color:var(--soft)"> ms</span></div><span class="band '+(med<=250?'min':med<=350?'mild':'mod')+'">'+v+' typical</span><div class="verdict">Typical simple visual RT: ~200\u2013350 ms. Mean '+avg+' ms.</div></div>'+
+      '<div class="scorebox"><div class="lab">All 5 trials</div><div class="big" style="font-size:20px;padding-top:8px">'+rt.times.join(' \u00B7 ')+'</div><div class="verdict">Spread matters: consistency is part of speed.</div></div></div>';
+    resultPanel('rt','Reaction time', rows,
+      'Median '+med+' ms \u2014 '+v+' the typical adult band (200\u2013350 ms) for a simple visual click. Honest caveat: this measures wiring speed and alertness on this device today \u2014 trackpad vs mouse, screen size and caffeine all move it \u00B150 ms. It is not \u201Csmartness\u201D; it\u2019s one honest component.',
+      (att>1?'<b>Attempt #'+att+':</b> RT improves with familiarity \u2014 first runs are the honest baseline. ':'')+'Slower than typical? Fatigue and distraction are the usual suspects before biology is.');
+  }
+
+  /* ---------- Task: Stroop ---------- */
+  var st;
+  function taskStroop(){
+    st={i:0,rows:[],t0:0,armed:false,word:null,ink:null};
+    taskShell('Stroop \u00B7 attention control',
+      'A color word appears printed in some ink color. Click the button matching the <b>INK color</b> \u2014 ignore the word itself. 20 trials.',
+      '<div class="stroopword" id="st-word">Ready?</div>'+
+      '<div class="colorbtns" id="st-btns">'+
+      STROOP_COLORS.map(function(c,i){return '<button class="cbtn" data-i="'+i+'" style="background:'+c.hex+'" disabled>'+c.name+'</button>';}).join('')+
+      '</div><button class="btn primary" id="st-start" style="margin-top:18px">Start \u2192</button>');
+    $('st-start').addEventListener('click', function(){ $('st-start').hidden=true; stNext(); });
+    Array.prototype.forEach.call($('st-btns').children, function(btn){
+      btn.addEventListener('click', function(){ stAnswer(parseInt(btn.getAttribute('data-i'),10)); });
+    });
+  }
+  function stNext(){
+    if(st.i>=20){ stFinish(); return; }
+    var w=rndInt(0,3);
+    var congruent=Math.random()<0.5;
+    var ink=congruent? w : (function(){ var x=rndInt(0,3); while(x===w) x=rndInt(0,3); return x; })();
+    st.word=w; st.ink=ink;
+    var el=$('st-word');
+    el.textContent='';
+    st.armed=false;
+    Array.prototype.forEach.call($('st-btns').children,function(b){b.disabled=true;});
+    later(function(){
+      el.textContent=STROOP_COLORS[w].name;
+      el.style.color=STROOP_COLORS[ink].hex;
+      st.armed=true;
+      st.t0=(window.performance&&performance.now)?performance.now():Date.now();
+      Array.prototype.forEach.call($('st-btns').children,function(b){b.disabled=false;});
+      taskNote('Trial '+(st.i+1)+' / 20');
+    }, 650);
+  }
+  function stAnswer(ci){
+    if(!st.armed) return;
+    st.armed=false;
+    var now=(window.performance&&performance.now)?performance.now():Date.now();
+    var dt=Math.round(now-st.t0);
+    st.rows.push({cong: st.word===st.ink, correct: ci===st.ink, rt:dt});
+    var el=$('st-word');
+    el.style.color='var(--ink)';
+    el.textContent = ci===st.ink ? '\u2713' : '\u2717';
+    el.style.color = ci===st.ink ? 'var(--good)' : 'var(--danger)';
+    st.i++;
+    later(stNext, 450);
+  }
+  function stFinish(){
+    var correct=st.rows.filter(function(r){return r.correct;});
+    var acc=correct.length/st.rows.length;
+    var cong=correct.filter(function(r){return r.cong;}).map(function(r){return r.rt;});
+    var inc=correct.filter(function(r){return !r.cong;}).map(function(r){return r.rt;});
+    var mc=Math.round(mean(cong)), mi=Math.round(mean(inc));
+    var interference=Math.max(0, mi-mc);
+    var att=bumpAttempt('stroop');
+    S.brain.stroop={acc:acc,congRT:mc,incRT:mi,interference:interference,errors:st.rows.length-correct.length,ts:Date.now(),n:att};
+    save();
+    var av = acc>=0.95?'above':(acc>=0.85?'within':'below');
+    var iv = interference<=150?'below typical (strong)':(interference<=300?'within typical':'above typical (heavy)');
+    resultPanel('stroop','Stroop',
+      '<div class="scoregrid"><div class="scorebox"><div class="lab">Accuracy</div><div class="big">'+Math.round(acc*100)+'%</div><span class="band '+(av==='above'?'min':av==='within'?'mild':'mod')+'">'+av+' typical</span><div class="verdict">'+(st.rows.length-correct.length)+' error(s) in 20 trials.</div></div>'+
+      '<div class="scorebox"><div class="lab">Interference cost</div><div class="big">+'+interference+'<span style="font-size:15px;color:var(--soft)"> ms</span></div><span class="band '+(interference<=150?'min':interference<=300?'mild':'mod')+'">'+iv+'</span><div class="verdict">Matching ink: '+mc+' ms \u00B7 conflicting ink: '+mi+' ms. Typical cost: ~100\u2013250 ms.</div></div></div>',
+      'Accuracy '+Math.round(acc*100)+'% ('+av+' typical), and the conflicting-ink tax on your brain was +'+interference+' ms ('+iv+'). This is your attention control under conflict \u2014 the ability to hold a rule while your brain screams the wrong answer. Low interference is a genuine marker of executive control; high interference shows up with fatigue, stress and poor sleep before it shows anything permanent.',
+      (att>1?'<b>Attempt #'+att+':</b> Stroop shrinks with practice \u2014 first run is the honest one. ':'')+'A handful of errors is normal; a scatter of them usually means rushing, not weakness.');
+  }
+
+  /* ---------- Task: MCQ engine (Reasoning & Verbal) ---------- */
+  function taskMCQ(key, title, items, showWhy){
+    var mc={i:0,correct:0,missed:[],missedW:[],t0:Date.now()};
+    function render(){
+      var it=items[mc.i];
+      taskShell(title,
+        (key==='reason'
+          ? 'Find the rule, pick the next item. Items escalate from easy to brutal \u2014 where you stall is the data point.'
+          : 'Pick the closest synonym or the true antonym. Ten items drawn from a rotating deck of '+VERBAL_POOL_SIZE+' words \u2014 every word appears within '+VERBAL_PASS_RUNS+' runs before any repeats, and nothing repeats back-to-back.'),
+        '<div style="font-size:13px;font-weight:800;color:var(--soft);letter-spacing:.08em">ITEM '+(mc.i+1)+' / '+items.length+'</div>'+
+        (key==='reason'? '<div class="seq">'+esc(it.q)+'</div>' : '<div class="seq" style="font-family:var(--sans);font-size:24px">'+esc(it.q)+'</div>')+
+        '<div class="choices" id="mc-choices">'+
+        it.opts.map(function(o,i){return '<button class="choice" data-i="'+i+'">'+esc(o)+'</button>';}).join('')+
+        '</div><div class="feedback" id="mc-fb"></div>');
+      Array.prototype.forEach.call($('mc-choices').children, function(btn){
+        btn.addEventListener('click', function(){ answer(parseInt(btn.getAttribute('data-i'),10), btn); });
+      });
+      taskNote('');
+    }
+    function answer(chosen, btn){
+      var it=items[mc.i];
+      var btns=$('mc-choices').children;
+      Array.prototype.forEach.call(btns, function(b){ b.disabled=true; });
+      if(chosen===it.a){
+        btn.classList.add('right');
+        mc.correct++;
+        $('mc-fb').className='feedback fb-good';
+        $('mc-fb').textContent='Correct.'+(showWhy?' '+it.why:'');
+      } else {
+        btn.classList.add('wrong');
+        btns[it.opts.indexOf(it.a)].classList.add('right');
+        mc.missed.push(mc.i+1);
+        mc.missedW.push(it.q);
+        $('mc-fb').className='feedback fb-bad';
+        $('mc-fb').textContent='Wrong \u2014 answer: '+it.a+'.'+(showWhy?' '+it.why:'');
+      }
+      later(function(){
+        mc.i++;
+        if(mc.i>=items.length) finish(); else render();
+      }, showWhy? 1500 : 1000);
+    }
+    function finish(){
+      var secs=Math.round((Date.now()-mc.t0)/1000);
+      var att=bumpAttempt(key);
+      S.brain[key]={correct:mc.correct,missed:mc.missed,secs:secs,ts:Date.now(),n:att,total:items.length};
+      if(key==='verbal'){
+        S.brain[key].heads = items.map(function(x){ return x.head; });
+        S.brain[key].missedW = mc.missedW;
+      }
+      save();
+      var total=items.length;
+      var v = key==='reason'
+        ? (mc.correct>=7?'strong':mc.correct>=5?'solid':mc.correct>=3?'mixed':'low today')
+        : (mc.correct>=9?'strong':mc.correct>=7?'solid':'mixed');
+      var band = (v==='strong')?'min':(v==='solid')?'mild':'mod';
+      var missLine = key==='reason'
+        ? (mc.missed.length? ' \u00B7 missed items: '+mc.missed.join(', '):'')
+        : (mc.missedW.length? ' \u00B7 missed: '+mc.missedW.join('; '):'');
+      resultPanel(key, key==='reason'?'Number series':'Verbal precision',
+        '<div class="scoregrid"><div class="scorebox"><div class="lab">'+(key==='reason'?'Series solved':'Correct')+'</div><div class="big">'+mc.correct+'<span style="font-size:15px;color:var(--soft)">/'+total+'</span></div><span class="band '+band+'">'+v+'</span><div class="verdict">Time: '+secs+'s'+missLine+'.</div></div></div>',
+        key==='reason'
+          ? 'You solved '+mc.correct+' of '+total+' series in '+secs+'s \u2014 '+v+'. Number-series reasoning is a fair (narrow) proxy for fluid reasoning: rule discovery under no prior knowledge. Items 1\u20134 are easy, 5\u20138 genuinely hard; adults typically land 4\u20136. Where you stalled ('+(mc.missed.length?'items '+mc.missed.join(', '):'nowhere')+') tells you more than the total.'
+          : 'You got '+mc.correct+' of '+total+' \u2014 '+v+', on a fresh draw from the rotating '+VERBAL_POOL_SIZE+'-word deck (full coverage every '+VERBAL_PASS_RUNS+' runs'+(mc.missedW.length?'; missed: '+mc.missedW.join(', '):'')+'. Vocabulary is crystallized ability: a record of everything you\u2019ve ever read and heard, not raw horsepower. It grows with age and reading, and it predicts a lot \u2014 just not the same \u201Clot\u201D as working memory or speed.',
+        key==='reason'
+          ? ((att>1?'<b>Attempt #'+att+':</b> you\u2019ve now seen these items \u2014 repeats measure memory of the test, not ability. First-run scores are the truthful ones. ':'')+'Working fast and working carefully trade off; both styles are valid, your time is reported so you can see which you chose.')
+          : ((att>1?'<b>Attempt #'+att+':</b> ':'')+'Because the deck rotates, repeats stay closer to honest than fixed tests \u2014 but familiarity with the format still gives a small lift, so your first cold run remains the cleanest baseline.'));
+    }
+    render();
+  }
+
+  /* ---------- Task: Math Sprint ---------- */
+  var ms;
+  function taskMath(){
+    ms={correct:0,wrong:0,tEnd:0,cur:null};
+    taskShell('Mental math sprint \u00B7 numeric fluency',
+      '60 seconds. Answer with your keyboard (Enter to submit). Mix of +, \u2212 and \u00D7. Speed and accuracy both count \u2014 unanswered is data too.',
+      '<div class="timebar" id="ms-bar" style="width:100%"></div>'+
+      '<div style="font-size:13px;font-weight:800;color:var(--soft)" id="ms-clock">60s left</div>'+
+      '<div class="mathq" id="ms-q">Ready?</div>'+
+      '<input class="mathin" id="ms-in" inputmode="numeric" autocomplete="off" disabled placeholder="\u2013">'+
+      '<div class="feedback" id="ms-fb"></div>'+
+      '<button class="btn primary" id="ms-btn" style="margin-top:12px">Start 60s sprint \u2192</button>');
+    $('ms-btn').addEventListener('click', function(){ $('ms-btn').hidden=true; msBegin(); });
+    $('ms-in').addEventListener('keydown', function(e){ if(e.key==='Enter') msAnswer(); });
+  }
+  function msGen(){
+    var type=rndInt(0,2), q, a;
+    if(type===0){ a=rndInt(12,89); q=rndInt(12,89); ms.cur={text:a+' + '+q, ans:a+q}; }
+    else if(type===1){ a=rndInt(30,99); q=rndInt(10,a-5); ms.cur={text:a+' \u2212 '+q, ans:a-q}; }
+    else { a=rndInt(3,12); q=rndInt(3,12); ms.cur={text:a+' \u00D7 '+q, ans:a*q}; }
+    $('ms-q').textContent=ms.cur.text+' = ?';
+    var inp=$('ms-in'); inp.value=''; inp.disabled=false; inp.focus();
+  }
+  function msBegin(){
+    ms.tEnd=Date.now()+60000;
+    msGen();
+    every(function(){
+      var left=Math.max(0, ms.tEnd-Date.now());
+      $('ms-bar') && ($('ms-bar').style.width=(left/60000*100)+'%');
+      $('ms-clock') && ($('ms-clock').textContent=Math.ceil(left/1000)+'s left');
+      if(left<=0) msFinish();
+    },100);
+  }
+  function msAnswer(){
+    var inp=$('ms-in');
+    var v=inp.value.trim();
+    if(v==='') return;
+    if(parseInt(v,10)===ms.cur.ans){ ms.correct++; $('ms-fb').className='feedback fb-good'; $('ms-fb').textContent='\u2713'; }
+    else { ms.wrong++; $('ms-fb').className='feedback fb-bad'; $('ms-fb').textContent='\u2717 (was '+ms.cur.ans+')'; }
+    taskNote('correct: '+ms.correct+' \u00B7 wrong: '+ms.wrong);
+    msGen();
+  }
+  function msFinish(){
+    cleanupTasks();
+    var inp=$('ms-in'); if(inp) inp.disabled=true;
+    var att=bumpAttempt('math');
+    S.brain.math={correct:ms.correct,wrong:ms.wrong,ts:Date.now(),n:att};
+    save();
+    var v = ms.correct>=18?'fast & fluent':(ms.correct>=12?'typical':'below typical');
+    var band = ms.correct>=18?'min':(ms.correct>=12?'mild':'mod');
+    resultPanel('math','Mental math',
+      '<div class="scoregrid"><div class="scorebox"><div class="lab">Correct in 60s</div><div class="big">'+ms.correct+'</div><span class="band '+band+'">'+v+'</span><div class="verdict">'+ms.wrong+' wrong \u00B7 accuracy '+Math.round(ms.correct/Math.max(1,ms.correct+ms.wrong)*100)+'%.</div></div></div>',
+      ms.correct+' correct with '+ms.wrong+' errors in 60 seconds \u2014 '+v+' for adults (rough guide: 12\u201317 typical, 18+ fast). Truthfully: mental arithmetic is numeric fluency \u2014 it is heavily practice-dependent and says more about your drill history than your ceiling. High accuracy with low speed is still a good brain being careful.',
+      (att>1?'<b>Attempt #'+att+':</b> sprint scores climb with repetition \u2014 warm-up effects are real. ':'')+'Anxiety is the classic score-killer here; a blank mind on 7\u00D78 is a feelings event, not an ability event.');
+  }
+
+  /* ==================== BRAIN SUMMARY + REPORT ==================== */
+  function brainVerdicts(){
+    var out=[];
+    if(S.brain.digit){ var d=S.brain.digit;
+      out.push({task:'Digit span (fwd/bwd)', score:d.fwd+' / '+d.bwd, typical:'5\u20139 / 3\u20136',
+        v: d.fwd>=8||d.bwd>=6 ? 'a' : (d.fwd>=5&&d.bwd>=3 ? 'w':'b'),
+        note:'Working memory: '+d.fwd+' forward ('+(d.fwd>=8?'above':d.fwd>=5?'within':'below')+' typical), '+d.bwd+' backward ('+(d.bwd>=6?'above':d.bwd>=3?'within':'below')+' typical).'+(d.n>1?' Attempt #'+d.n+' \u2014 practice-inflated.':'')});
+    }
+    if(S.brain.rt){ var r=S.brain.rt;
+      out.push({task:'Reaction time (median)', score:r.median+' ms', typical:'200\u2013350 ms',
+        v: r.median<=250?'a':(r.median<=350?'w':'b'),
+        note:'Processing speed: '+r.median+' ms median (mean '+r.mean+' ms) \u2014 '+(r.median<=250?'fast':r.median<=350?'typical':'slower than typical; check sleep/caffeine/device before drawing conclusions')+'.'+(r.n>1?' Attempt #'+r.n+'.':'')});
+    }
+    if(S.brain.stroop){ var s=S.brain.stroop;
+      out.push({task:'Stroop (acc / interference)', score:Math.round(s.acc*100)+'% / +'+s.interference+' ms', typical:'\u226585% / +100\u2013250 ms',
+        v: (s.acc>=0.85&&s.interference<=300)?'a':(s.acc>=0.75?'w':'b'),
+        note:'Attention control: '+Math.round(s.acc*100)+'% accurate, conflict cost +'+s.interference+' ms ('+(s.interference<=150?'strong':s.interference<=300?'typical':'heavy \u2014 fatigue/stress inflate this')+', '+s.errors+' errors).'+(s.n>1?' Attempt #'+s.n+'.':'')});
+    }
+    if(S.brain.reason){ var rs=S.brain.reason;
+      out.push({task:'Number series', score:rs.correct+'/8', typical:'4\u20136/8',
+        v: rs.correct>=7?'a':(rs.correct>=4?'w':'b'),
+        note:'Fluid reasoning proxy: '+rs.correct+'/8 in '+rs.secs+'s'+(rs.missed.length?'; missed items '+rs.missed.join(', '):'; clean sweep')+'.'+(rs.n>1?' Attempt #'+rs.n+' \u2014 items now seen before.':'')});
+    }
+    if(S.brain.math){ var m=S.brain.math;
+      out.push({task:'Math sprint (60s)', score:m.correct+' correct', typical:'12\u201317',
+        v: m.correct>=18?'a':(m.correct>=12?'w':'b'),
+        note:'Numeric fluency: '+m.correct+' correct, '+m.wrong+' errors \u2014 heavily practice-dependent by nature.'+(m.n>1?' Attempt #'+m.n+'.':'')});
+    }
+    if(S.brain.verbal){ var vb=S.brain.verbal;
+      out.push({task:'Verbal precision', score:vb.correct+'/'+(vb.total||VERBAL_PER_RUN), typical:'7\u20139/10',
+        v: vb.correct>=9?'a':(vb.correct>=7?'w':'b'),
+        note:'Crystallized knowledge: '+vb.correct+'/'+(vb.total||VERBAL_PER_RUN)+' from the rotating '+VERBAL_POOL_SIZE+'-word deck (full coverage every '+VERBAL_PASS_RUNS+' runs)'+(vb.missedW&&vb.missedW.length?'; missed: '+vb.missedW.join('; '):'')+' \u2014 a record of reading and experience more than raw horsepower.'+(vb.n>1?' Attempt #'+vb.n+'.':'')});
+    }
+    return out;
+  }
+
+  function brainPlain(){
+    var vd=brainVerdicts();
+    if(!vd.length) return 'No brain tasks completed yet.';
+    var strong=vd.filter(function(x){return x.v==='a';}).map(function(x){return x.task;});
+    var below=vd.filter(function(x){return x.v==='b';}).map(function(x){return x.task;});
+    var t='Across '+vd.length+' of 6 tasks: ';
+    if(strong.length) t+='clearly strong \u2014 '+strong.join(', ')+'. ';
+    if(below.length) t+='below typical today \u2014 '+below.join(', ')+'. ';
+    if(!strong.length&&!below.length) t+='everything landed inside typical adult ranges \u2014 which is exactly where most people are, and an honest result, not a boring one. ';
+    if(S.brain.ctx.sleep && S.brain.ctx.sleep!=='7+ hours') t+='You ran on '+S.brain.ctx.sleep.toLowerCase()+' of sleep \u2014 that measurably depresses working memory, speed and attention; treat today\u2019s numbers as a floor, not a ceiling. ';
+    if(S.brain.ctx.distract && S.brain.ctx.distract!=='Quiet and focused') t+='You also reported being '+S.brain.ctx.distract.toLowerCase()+' \u2014 same caveat, doubled. ';
+    var repeats=0; for(var k in S.brain.attempts) if(S.brain.attempts[k]>1) repeats++;
+    if(repeats) t+=repeats+' task(s) were repeated \u2014 repeats inflate scores; your first attempts were the honest baseline. ';
+    t+='And the part no honest app can skip: six short web tasks cannot produce a valid IQ. Real IQ testing takes 1\u20132 hours with a trained examiner (WAIS, Stanford-Binet). What you have is a truthful profile of components \u2014 which is more useful than a fake single number anyway.';
+    return t;
+  }
+
+  function reportText(){
+    var L=[];
+    L.push('MINDBASELINE REPORT \u2014 generated '+fmtDate(Date.now()));
+    L.push('Screening & practice tool. NOT a diagnosis. NOT an IQ test.');
+    L.push('');
+    if(safetyNeeded()){
+      L.push('*** SAFETY FLAG: PHQ-9 item 9 answered positively (thoughts of self-harm / being better off dead in the last 2 weeks). ***');
+      L.push('Please reach out today: local emergency number; findahelpline.com (130+ countries); US/CA 988; UK/IE Samaritans 116 123; AU Lifeline 13 11 14; IN Tele-MANAS 14416.');
+      L.push('');
+    }
+    L.push('--- MIND ---');
+    if(S.mind.phq){ var pb=phqBand(S.mind.phq.score); L.push('PHQ-9 (depression): '+S.mind.phq.score+'/27 \u2014 '+pb.name+'. '+pb.text); }
+    else L.push('PHQ-9: not taken.');
+    if(S.mind.gad){ var gb=gadBand(S.mind.gad.score); L.push('GAD-7 (anxiety): '+S.mind.gad.score+'/21 \u2014 '+gb.name+'. '+gb.text); }
+    else L.push('GAD-7: not taken.');
+    if(S.mind.who){ var wb=whoBand(S.mind.who.pct); L.push('WHO-5 (wellbeing): '+S.mind.who.pct+'% (raw '+S.mind.who.raw+'/25) \u2014 '+wb.name+'. '+wb.text); }
+    else L.push('WHO-5: not taken.');
+    if(S.mind.ipip){
+      L.push('');
+      L.push('Mini-IPIP Big Five (sums of 4\u201320):');
+      ['E','A','C','N','O'].forEach(function(f){
+        var s=S.mind.ipip.sums[f], lvl=factorLevel(s/4);
+        L.push('  '+FACTOR_META[f].name+': '+s+'/20 ('+levelWord(lvl)+') \u2014 '+FACTOR_META[f][lvl]);
+      });
+    } else L.push('Mini-IPIP: not taken.');
+    L.push('');
+    L.push('--- BRAIN ---');
+    L.push('Conditions: sleep '+(S.brain.ctx.sleep||'not stated')+'; setting '+(S.brain.ctx.distract||'not stated')+'.');
+    var vd=brainVerdicts();
+    if(vd.length){ vd.forEach(function(x){ L.push(x.task+': '+x.score+' (typical '+x.typical+') \u2014 '+x.note); }); }
+    else L.push('No brain tasks completed.');
+    L.push('');
+    L.push('PLAIN VERDICT (BRAIN): '+brainPlain());
+    L.push('');
+    L.push('--- HONEST LIMITS ---');
+    L.push('1. Screeners are not diagnoses; only a qualified professional can diagnose.');
+    L.push('2. Six web tasks are not an IQ test; no valid IQ can be produced online.');
+    L.push('3. One sitting is a sample, not a portrait \u2014 sleep, stress, mood, device and practice all move scores.');
+    L.push('4. If any result concerns you, the truthful next step is a professional. That is a strong move, not a weak one.');
+    L.push('');
+    L.push('Created by Rocaudio\u2122 Tech Company Europe');
+    return L.join('\n');
+  }
+
+  function renderReport(){
+    var b=$('report-body');
+    var any = S.mind.phq||S.mind.gad||S.mind.who||S.mind.ipip||brainVerdicts().length;
+    if(!any){
+      b.innerHTML='<section class="card"><p class="kicker">Report</p><h2>Nothing to report \u2014 yet, honestly.</h2><p class="mut">Complete the Mind check, the Brain tasks, or both. The report assembles automatically, including the parts you\u2019d rather skip.</p></section>';
+      return;
+    }
+    var h='';
+    if(safetyNeeded()) h+=safetyHtml();
+    h+='<section class="card"><p class="kicker">Report \u00B7 '+fmtDate(Date.now())+'</p><h2>Your baseline, straight</h2>';
+
+    h+='<div class="rep-sec"><h3>Mind</h3>';
+    if(S.mind.phq||S.mind.gad||S.mind.who){
+      h+='<div class="scoregrid">';
+      if(S.mind.phq){ var pb=phqBand(S.mind.phq.score);
+        h+='<div class="scorebox"><div class="lab">PHQ-9 \u00B7 depression</div><div class="big">'+S.mind.phq.score+'/27</div><span class="band '+pb.cls+'">'+pb.name+'</span></div>'; }
+      if(S.mind.gad){ var gb=gadBand(S.mind.gad.score);
+        h+='<div class="scorebox"><div class="lab">GAD-7 \u00B7 anxiety</div><div class="big">'+S.mind.gad.score+'/21</div><span class="band '+gb.cls+'">'+gb.name+'</span></div>'; }
+      if(S.mind.who){ var wb=whoBand(S.mind.who.pct);
+        h+='<div class="scorebox"><div class="lab">WHO-5 \u00B7 wellbeing</div><div class="big">'+S.mind.who.pct+'%</div><span class="band '+wb.cls+'">'+wb.name+'</span></div>'; }
+      h+='</div>';
+      if(S.mind.phq) h+='<p class="verdict" style="font-size:13.5px">'+esc(phqBand(S.mind.phq.score).text)+'</p>';
+      if(S.mind.gad) h+='<p class="verdict" style="font-size:13.5px">'+esc(gadBand(S.mind.gad.score).text)+'</p>';
+      if(S.mind.who) h+='<p class="verdict" style="font-size:13.5px">'+esc(whoBand(S.mind.who.pct).text)+'</p>';
+    } else h+='<p class="mut">Mind check not taken.</p>';
+    if(S.mind.ipip){
+      h+='<h3 style="margin-top:18px">Big Five (Mini-IPIP)</h3><div>';
+      ['E','A','C','N','O'].forEach(function(f){
+        var s=S.mind.ipip.sums[f], lvl=factorLevel(s/4), m=FACTOR_META[f];
+        h+='<div class="frow"><span class="fl">'+esc(m.name)+'</span><span class="fb"><i style="width:'+Math.round((s-4)/16*100)+'%"></i></span><span class="fv">'+s+'/20</span></div>'+
+           '<p class="fdesc"><b>'+levelWord(lvl)+'</b> \u2014 '+esc(m[lvl])+'</p>';
+      });
+      h+='</div>';
+    }
+    h+='</div>';
+
+    h+='<div class="rep-sec"><h3>Brain</h3>';
+    var vd=brainVerdicts();
+    if(vd.length){
+      h+='<table class="res"><tr><th>Task</th><th>Score</th><th>Typical adult</th><th>Verdict</th></tr>';
+      vd.forEach(function(x){
+        var vt = x.v==='a'?['a','above / strong']:x.v==='w'?['w','within typical']:['b','below today'];
+        h+='<tr><td><b>'+esc(x.task)+'</b><div style="font-size:12px;color:var(--soft)">'+esc(x.note)+'</div></td>'+
+           '<td class="num">'+esc(x.score)+'</td><td>'+esc(x.typical)+'</td>'+
+           '<td><span class="vtag '+vt[0]+'">'+vt[1]+'</span></td></tr>';
+      });
+      h+='</table>';
+      h+='<div class="plain"><b>Plain verdict:</b> '+esc(brainPlain())+'</div>';
+    } else h+='<p class="mut">No brain tasks completed.</p>';
+    h+='</div>';
+
+    h+='<div class="rep-sec"><h3>Honest limits (read this part too)</h3>'+
+       '<div class="honest"><b>1.</b> Screeners \u2260 diagnoses. Only a qualified professional can diagnose \u2014 and only in context.<br>'+
+       '<b>2.</b> No IQ number appears in this report because none would be honest. Valid IQ testing takes 1\u20132 hours with a trained examiner.<br>'+
+       '<b>3.</b> One sitting is a sample, not a portrait: sleep, stress, mood, device, and practice effects all move these numbers.<br>'+
+       '<b>4.</b> If anything here concerns you, the truthful next step is a professional. Taking it is a strong move, not a weak one.</div></div>';
+    h+='</section>';
+    b.innerHTML=h;
+  }
+
+  /* report export */
+  $('btn-copy-report').addEventListener('click', function(){
+    var text=reportText();
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){toast('Report copied.');}).catch(fbCopy);
+    } else fbCopy();
+    function fbCopy(){
+      try{
+        var ta=document.createElement('textarea'); ta.value=text;
+        ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy')? toast('Report copied.') : toast('Copy blocked here \u2014 open in a browser.');
+        ta.remove();
+      }catch(e){ toast('Copy blocked here \u2014 open in a browser.'); }
+    }
+  });
+  $('btn-dl-report').addEventListener('click', function(){
+    try{
+      var blob=new Blob([reportText()],{type:'text/plain;charset=utf-8'});
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement('a'); a.href=url; a.download='mindbaseline-report.txt';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){URL.revokeObjectURL(url);},5000);
+      toast('Report saved.');
+    }catch(e){ toast('Downloads blocked in this preview \u2014 open in a browser.'); }
+  });
+  $('btn-print-report').addEventListener('click', function(){
+    try{ window.print(); }catch(e){ toast('Printing blocked here \u2014 open in a browser.'); }
+  });
+
+  var resetArmed=false, resetTimer=null;
+  $('btn-reset').addEventListener('click', function(){
+    if(!resetArmed){
+      resetArmed=true;
+      $('btn-reset').textContent='Click again to erase EVERYTHING';
+      clearTimeout(resetTimer);
+      resetTimer=setTimeout(function(){ resetArmed=false; $('btn-reset').textContent='Reset everything'; },4000);
+      return;
+    }
+    clearTimeout(resetTimer); resetArmed=false;
+    $('btn-reset').textContent='Reset everything';
+    try{ window.localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    S=defaultState(); save();
+    mindStep='phq';
+    syncConsent(); renderStartStatus(); renderReport();
+    toast('Everything erased. Clean slate.');
+  });
+
+  /* ==================== TAB WIRING & INIT ==================== */
+  $('tab-start').addEventListener('click',function(){showView('start');});
+  $('tab-mind').addEventListener('click',function(){
+    if(!S.consent){ toast('Tick the consent box on the Start tab first \u2014 it\u2019s one honest click.'); showView('start'); return; }
+    showView('mind');
+  });
+  $('tab-brain').addEventListener('click',function(){
+    if(!S.consent){ toast('Tick the consent box on the Start tab first \u2014 it\u2019s one honest click.'); showView('start'); return; }
+    showView('brain');
+  });
+  $('tab-report').addEventListener('click',function(){showView('report');});
+
+  renderStartStatus();
+  if(memoryOnly){
+    toast('Heads up: this preview can\u2019t persist storage \u2014 open the file in a browser so your results survive.');
+  }
+})();
+</script>
+</body>
+</html>
